@@ -32,4 +32,196 @@
     .list-container { padding: 8px 16px; display: flex; flex-direction: column; gap: 10px; }
     .book-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
     .book-title { font-size: 1rem; font-weight: 600; color: #fff; line-height: 1.3; }
-    .book-author { font-size:
+    .book-author { font-size: 0.86rem; color: var(--subtext); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+    .badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
+    .badge-audible { background: rgba(247, 127, 0, 0.2); color: #fca311; }
+    .badge-borrowbox { background: rgba(37, 162, 68, 0.2); color: #4ade80; }
+    .badge-wishlist { background: rgba(157, 78, 221, 0.2); color: #c77dff; }
+    .badge-status { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+    .badge-avail { background: rgba(46, 120, 210, 0.2); color: #60a5fa; }
+    .series-tag { font-size: 0.8rem; color: #38bdf8; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <h1>Audiobook Tracker</h1>
+      <button class="refresh-btn" onclick="fetchSheetData()">↻ Sync</button>
+    </div>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search title, author, series, narrator...">
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="setFilter('all', event)">All</button>
+    <button class="tab-btn" onclick="setFilter('ready', event)">Ready to Listen</button>
+    <button class="tab-btn" onclick="setFilter('series', event)">Series View</button>
+    <button class="tab-btn" onclick="setFilter('audible', event)">Audible Owned</button>
+    <button class="tab-btn" onclick="setFilter('borrowbox', event)">BorrowBox</button>
+    <button class="tab-btn" onclick="setFilter('wishlist', event)">Wishlists</button>
+  </div>
+
+  <div class="stats-bar">
+    <span id="resultCount">Connecting to Google Drive...</span>
+    <span id="activeFilterLabel">Filter: ALL</span>
+  </div>
+
+  <div id="loadingMsg" class="loading-msg">Loading library from Google Sheets...</div>
+  <div class="list-container" id="bookList"></div>
+
+  <script>
+    // Live published Google Sheet link
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQenTx1wIMMUT--VThAoStkCVuW9U-52HThQqFCYA2iew_UHCtA--f5-JlrZNYyz3dH12OD71bUlV4R/pub?output=csv';
+
+    let masterData = [];
+    let currentFilter = 'all';
+
+    window.onload = function() {
+      fetchSheetData();
+    };
+
+    function fetchSheetData() {
+      document.getElementById('loadingMsg').style.display = 'block';
+      document.getElementById('loadingMsg').textContent = 'Fetching latest updates from Google Sheets...';
+      
+      // Cache-busting timestamp ensures phone browser always fetches latest sheet edits
+      const url = SHEET_CSV_URL + '&_t=' + new Date().getTime();
+
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error('Network error');
+          return res.text();
+        })
+        .then(csv => {
+          parseCSV(csv);
+          document.getElementById('loadingMsg').style.display = 'none';
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('loadingMsg').innerHTML = 
+            'Could not load Google Sheet. Please check connection and refresh.';
+        });
+    }
+
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      if (lines.length < 2) return;
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"\$/g, ''));
+      
+      masterData = lines.slice(1).map(line => {
+        const row = [];
+        let inQuotes = false;
+        let token = '';
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"' && (i === 0 || line[i-1] !== '\\')) {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            row.push(token.trim());
+            token = '';
+          } else {
+            token += char;
+          }
+        }
+        row.push(token.trim());
+
+        let obj = {};
+        headers.forEach((h, idx) => { 
+          obj[h] = row[idx] ? row[idx].replace(/^"|"\$/g, '') : ''; 
+        });
+        return obj;
+      });
+
+      renderBooks();
+    }
+
+    function setFilter(filter, ev) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      if (ev && ev.target) ev.target.classList.add('active');
+      renderBooks();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderBooks);
+
+    function renderBooks() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const container = document.getElementById('bookList');
+      container.innerHTML = '';
+
+      let filtered = masterData.filter(b => {
+        const title = (b.Title || b.title || '').toLowerCase();
+        const author = (b.Author || b.author || '').toLowerCase();
+        const series = (b.Series || b.series || '').toLowerCase();
+        const narrator = (b.Narrator || b.narrator || '').toLowerCase();
+
+        const matchesSearch = title.includes(search) || author.includes(search) || 
+                              series.includes(search) || narrator.includes(search);
+        if (!matchesSearch) return false;
+
+        const status = b.Status || b.status || '';
+        const platform = b.Platform || b.platform || '';
+
+        if (currentFilter === 'ready') {
+          return status === 'Unread / Owned' || status === 'Available to Borrow' || status.includes('In Progress');
+        } else if (currentFilter === 'audible') {
+          return platform === 'Audible';
+        } else if (currentFilter === 'borrowbox') {
+          return platform.includes('BorrowBox');
+        } else if (currentFilter === 'wishlist') {
+          return platform.includes('Wishlist') || status === 'On Reserve';
+        } else if (currentFilter === 'series') {
+          return (series.trim() !== '');
+        }
+        return true;
+      });
+
+      if (currentFilter === 'series') {
+        filtered.sort((a, b) => {
+          const sA = (a.Series || a.series || '');
+          const sB = (b.Series || b.series || '');
+          const nA = parseFloat(a.Book_Number || a.book_number) || 0;
+          const nB = parseFloat(b.Book_Number || b.book_number) || 0;
+          return sA.localeCompare(sB) || nA - nB;
+        });
+      }
+
+      document.getElementById('resultCount').textContent = `${filtered.length} titles`;
+      document.getElementById('activeFilterLabel').textContent = `Filter: ${currentFilter.toUpperCase()}`;
+
+      filtered.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+
+        const platform = b.Platform || b.platform || '';
+        const status = b.Status || b.status || '';
+        const avail = b.Availability_Date || b.availability_date || '';
+        const duration = b.Duration || b.duration || '';
+        const series = b.Series || b.series || '';
+        const bookNum = b.Book_Number || b.book_number || '';
+        const title = b.Title || b.title || '';
+        const author = b.Author || b.author || '';
+        const narrator = b.Narrator || b.narrator || '';
+
+        let platformBadgeClass = 'badge-audible';
+        if (platform.includes('BorrowBox')) platformBadgeClass = 'badge-borrowbox';
+        if (platform.includes('Wishlist')) platformBadgeClass = 'badge-wishlist';
+
+        card.innerHTML = `
+          <div class="book-title">${title}</div>
+          <div class="book-author">${author} ${narrator ? '• Narrated by ' + narrator : ''}</div>
+          ${series ? `<div class="series-tag">${series}${bookNum ? '#' + bookNum : ''}</div>` : ''}
+          <div class="badge-row">
+            <span class="badge ${platformBadgeClass}">${platform}</span>
+            <span class="badge badge-status">${status}</span>
+            ${avail ? `<span class="badge badge-avail">\${avail}</span>` : ''}
+            ${duration ? `<span class="badge badge-status">\${duration}</span>` : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
