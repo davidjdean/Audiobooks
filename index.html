@@ -711,7 +711,7 @@
   <script>
     // --- CONFIGURATION ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPOQkhpp4ETI3IGOUqF3yzPY_PpPnTpwGyoS7NDqD0noAbLS3ky8neN8AjpwONNKf8/exec";
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/1af_ss4MLMPs8MeHO9lnneNM4JjhSDgIpApi1iecahl4/gviz/tq?tqx=out:csv";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQenTx1wIMMUT--VThAoStkCVuW9U-52HThQqFCYA2iew_UHCtA--f5-JlrZNYyz3dH12OD71bUlV4R/pub?gid=0&single=true&output=csv";
 
     // Global App State
     let libraryData = [];
@@ -953,7 +953,6 @@
         card.className = "card";
         card.onclick = () => openSummaryView(book);
 
-        // Safe duration display via concatenation
         const durationStr = book.Duration ? book.Duration : "Unknown duration";
         const seriesInfo = book.Series ? (book.Series + (book.Series_Number ? " #" + book.Series_Number : "")) : "Standalone";
 
@@ -1082,7 +1081,6 @@
 
       const books = libraryData.filter(b => type === 'author' ? b.Author === name : b.Narrator === name);
 
-      // "Show All Titles" top button
       const allBtn = document.getElementById("btn-series1-all");
       allBtn.textContent = `Show All ${books.length} Titles by ${name}`;
       allBtn.onclick = () => {
@@ -1090,7 +1088,6 @@
         renderTitleList(books);
       };
 
-      // Group by Series
       const seriesMap = new Map();
       const standalones = [];
 
@@ -1104,7 +1101,6 @@
         }
       });
 
-      // Render Series
       seriesMap.forEach((sBooks, sName) => {
         const completed = sBooks.filter(b => (b.Status || '').toLowerCase().includes('listened')).length;
         const unread = sBooks.filter(b => isAvailable(b)).length;
@@ -1121,7 +1117,6 @@
         container.appendChild(row);
       });
 
-      // Standalones group if any
       if (standalones.length > 0) {
         const row = document.createElement("div");
         row.className = "drilldown-item";
@@ -1141,7 +1136,6 @@
 
     function openSeriesTitles(seriesName, books) {
       pushView("view-titles", seriesName);
-      // Clone array to sort by series sequence
       const sorted = [...books].sort((a,b) => parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0));
       renderTitleList(sorted);
     }
@@ -1171,7 +1165,7 @@
         </div>
       `;
 
-      // Hide or show "Story So Far" button (Option A: Hidden on Book 1 or standalones)
+      // Hide "Story So Far" for Book 1 or standalones
       const storyBtn = document.getElementById("btn-story-so-far");
       const num = parseFloat(book.Series_Number);
       if (!book.Series || !book.Series.trim() || isNaN(num) || num <= 1) {
