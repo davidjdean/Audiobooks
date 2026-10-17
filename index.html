@@ -2,225 +2,1474 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Audiobook Library & Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Audiobook Library</title>
   <style>
     :root {
-      --bg: #121316;
-      --card-bg: #1e2025;
-      --accent: #2e78d2;
-      --text: #f0f2f5;
-      --subtext: #9ba1a6;
-      --border: #2d3139;
-      --borrowbox: #25a244;
-      --audible: #f77f00;
-      --wishlist: #9d4edd;
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-audible: #f59e0b;
+      --accent-borrowbox: #10b981;
+      --accent-inprogress: #0ea5e9;
+      --accent-available: #22c55e;
+      --accent-wishlist: #a855f7;
+      --accent-listened: #6b7280;
+      --accent-blue: #3b82f6;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
-    header { position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 16px; z-index: 100; }
-    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    h1 { font-size: 1.15rem; font-weight: 700; }
-    .refresh-btn { background: none; border: 1px solid var(--border); color: var(--subtext); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; }
-    .search-box { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: #fff; font-size: 0.95rem; }
-    .nav-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px; scrollbar-width: none; background: #16181d; border-bottom: 1px solid var(--border); }
-    .nav-tabs::-webkit-scrollbar { display: none; }
-    .tab-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--subtext); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; white-space: nowrap; cursor: pointer; font-weight: 600; }
-    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .stats-bar { padding: 10px 16px; font-size: 0.8rem; color: var(--subtext); display: flex; justify-content: space-between; }
-    .loading-msg { padding: 30px 16px; text-align: center; color: var(--subtext); font-size: 0.95rem; }
-    .list-container { padding: 8px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .book-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
-    .book-title { font-size: 1rem; font-weight: 600; color: #fff; line-height: 1.3; }
-    .book-author { font-size: 0.86rem; color: var(--subtext); }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
-    .badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
-    .badge-audible { background: rgba(247, 127, 0, 0.2); color: #fca311; }
-    .badge-borrowbox { background: rgba(37, 162, 68, 0.2); color: #4ade80; }
-    .badge-wishlist { background: rgba(157, 78, 221, 0.2); color: #c77dff; }
-    .badge-status { background: rgba(255, 255, 255, 0.08); color: var(--text); }
-    .badge-avail { background: rgba(46, 120, 210, 0.2); color: #60a5fa; }
-    .series-tag { font-size: 0.8rem; color: #38bdf8; font-weight: 500; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background-color: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 40;
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px 8px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .btn-icon:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* Segmented Top Nav */
+    .nav-tabs {
+      display: flex;
+      background-color: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .nav-tab.active {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 768px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Search & Filters Controls */
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 36px 10px 14px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .segmented-pill {
+      display: flex;
+      background-color: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 2px;
+      border: 1px solid var(--border-color);
+    }
+
+    .pill-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .pill-btn.active {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sort-select {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    /* Cards & Lists */
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+    .card:active {
+      transform: scale(0.99);
+      border-color: var(--accent-blue);
+    }
+
+    .book-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .book-card-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .stars-row {
+      display: inline-flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .star {
+      color: #374151;
+      font-size: 1rem;
+    }
+    .star.filled {
+      color: var(--accent-audible);
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drilldown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+    .drilldown-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .drilldown-counts {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Modal / Bottom Sheet */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.65);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background-color: var(--bg-secondary);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.4);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .modal-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .modal-checkbox-row:hover {
+      background-color: var(--bg-hover);
+    }
+    .modal-checkbox-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-primary {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+    }
+    .btn-secondary {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* Summary & Detail View */
+    .view-screen {
+      display: none;
+    }
+    .view-screen.active {
+      display: block;
+    }
+
+    .detail-header {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .detail-section {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #1e293b;
+      border: 1px solid var(--accent-blue);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: none;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid var(--accent-blue);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Interactive Stars for Update Screen */
+    .rating-picker {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    .rating-picker span {
+      color: #374151;
+      transition: color 0.1s;
+    }
+    .rating-picker span.active {
+      color: var(--accent-audible);
+    }
+
+    .status-picker-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .status-picker-option.selected {
+      border-color: var(--accent-blue);
+      background-color: rgba(59, 130, 246, 0.1);
+    }
   </style>
 </head>
 <body>
 
+  <!-- Floating Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Header -->
   <header>
     <div class="header-top">
-      <h1>Audiobook Tracker</h1>
-      <button class="refresh-btn" onclick="fetchSheetData()">↻ Sync</button>
+      <div id="btn-back" class="btn-icon" style="display:none;" onclick="navigateBack()">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </div>
+      <div class="header-title" id="page-title">
+        <span>Audiobook Library</span>
+      </div>
+      <div class="btn-icon" onclick="openKeyModal()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
     </div>
-    <input type="text" id="searchInput" class="search-box" placeholder="Search title, author, series, narrator...">
+
+    <!-- Pinned Top Segmented Tab Navigation -->
+    <nav class="nav-tabs" id="main-nav-tabs">
+      <button class="nav-tab active" onclick="switchMainTab('titles')">Title</button>
+      <button class="nav-tab" onclick="switchMainTab('authors')">Author</button>
+      <button class="nav-tab" onclick="switchMainTab('series')">Series</button>
+      <button class="nav-tab" onclick="switchMainTab('narrators')">Narrator</button>
+    </nav>
   </header>
 
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="setFilter('all', event)">All</button>
-    <button class="tab-btn" onclick="setFilter('ready', event)">Ready to Listen</button>
-    <button class="tab-btn" onclick="setFilter('series', event)">Series View</button>
-    <button class="tab-btn" onclick="setFilter('audible', event)">Audible Owned</button>
-    <button class="tab-btn" onclick="setFilter('borrowbox', event)">BorrowBox</button>
-    <button class="tab-btn" onclick="setFilter('wishlist', event)">Wishlists</button>
+  <main>
+    <!-- View: TITLE TAB -->
+    <div id="view-titles" class="view-screen active">
+      <div class="controls-wrapper">
+        <div class="search-box">
+          <input type="text" id="search-title" class="search-input" placeholder="Search titles..." oninput="handleTitleSearch(this.value)">
+          <button class="search-clear" id="clear-title-search" onclick="clearTitleSearch()">✕</button>
+        </div>
+
+        <div class="filter-row">
+          <div class="segmented-pill">
+            <button class="pill-btn active" onclick="setPlatformFilter('all')">All</button>
+            <button class="pill-btn" onclick="setPlatformFilter('Audible')">Audible</button>
+            <button class="pill-btn" onclick="setPlatformFilter('BorrowBox')">BorrowBox</button>
+          </div>
+
+          <button class="filter-btn" onclick="openStatusModal()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span id="status-filter-label">Status</span>
+          </button>
+
+          <select class="sort-select" id="sort-select" onchange="renderTitleList()">
+            <option value="title-az">Title (A–Z)</option>
+            <option value="series-seq">Series Sequence</option>
+            <option value="author-az">Author (A–Z)</option>
+            <option value="rating-desc">Rating (High to Low)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="titles-container" class="item-list"></div>
+    </div>
+
+    <!-- View: AUTHOR TAB -->
+    <div id="view-authors" class="view-screen">
+      <div class="controls-wrapper">
+        <div class="search-box">
+          <input type="text" id="search-author" class="search-input" placeholder="Search authors..." oninput="renderAuthorList(this.value)">
+          <button class="search-clear" id="clear-author-search" onclick="clearAuthorSearch()">✕</button>
+        </div>
+      </div>
+      <div id="authors-container" class="item-list"></div>
+    </div>
+
+    <!-- View: SERIES TAB -->
+    <div id="view-series" class="view-screen">
+      <div class="controls-wrapper">
+        <div class="search-box">
+          <input type="text" id="search-series" class="search-input" placeholder="Search series..." oninput="renderSeriesList(this.value)">
+          <button class="search-clear" id="clear-series-search" onclick="clearSeriesSearch()">✕</button>
+        </div>
+      </div>
+      <div id="series-container" class="item-list"></div>
+    </div>
+
+    <!-- View: NARRATOR TAB -->
+    <div id="view-narrators" class="view-screen">
+      <div class="controls-wrapper">
+        <div class="search-box">
+          <input type="text" id="search-narrator" class="search-input" placeholder="Search narrators..." oninput="renderNarratorList(this.value)">
+          <button class="search-clear" id="clear-narrator-search" onclick="clearNarratorSearch()">✕</button>
+        </div>
+      </div>
+      <div id="narrators-container" class="item-list"></div>
+    </div>
+
+    <!-- View: SERIES1 (Filtered for single Author or Narrator) -->
+    <div id="view-series1" class="view-screen">
+      <div style="margin-bottom: 12px;">
+        <button class="btn btn-secondary" style="width: 100%;" id="btn-series1-all">Show All Titles</button>
+      </div>
+      <div id="series1-container" class="item-list"></div>
+    </div>
+
+    <!-- View: SUMMARY -->
+    <div id="view-summary" class="view-screen">
+      <div id="summary-header" class="detail-header"></div>
+
+      <div class="detail-section">
+        <div class="section-title">
+          <span>Book Summary</span>
+          <button class="btn-icon" onclick="fetchGeminiSummary(true)" title="Regenerate">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </button>
+        </div>
+        <div id="summary-content" class="ai-content"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-primary" onclick="openUpdateScreen()">Update Status / Rating</button>
+        <button class="btn btn-secondary" id="btn-story-so-far" onclick="openStoryScreen()">Story So Far</button>
+      </div>
+    </div>
+
+    <!-- View: STORY SO FAR -->
+    <div id="view-story" class="view-screen">
+      <div id="story-header" class="detail-header"></div>
+      <div class="detail-section">
+        <div class="section-title">
+          <span>Series Recap (Up to Previous Book)</span>
+          <button class="btn-icon" onclick="fetchGeminiStory(true)" title="Regenerate">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </button>
+        </div>
+        <div id="story-content" class="ai-content"></div>
+      </div>
+    </div>
+
+    <!-- View: UPDATE SCREEN -->
+    <div id="view-update" class="view-screen">
+      <div class="detail-header" id="update-header"></div>
+
+      <div class="detail-section">
+        <div class="section-title">Rating</div>
+        <div class="rating-picker" id="update-rating-stars">
+          <span onclick="setUpdateRating(1)">★</span>
+          <span onclick="setUpdateRating(2)">★</span>
+          <span onclick="setUpdateRating(3)">★</span>
+          <span onclick="setUpdateRating(4)">★</span>
+          <span onclick="setUpdateRating(5)">★</span>
+        </div>
+        <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;" onclick="setUpdateRating(0)">Clear Rating</button>
+      </div>
+
+      <div class="detail-section">
+        <div class="section-title">Status</div>
+        <div id="update-status-options"></div>
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="submitBookUpdate()">Save Changes</button>
+    </div>
+  </main>
+
+  <!-- Modal: Status Multi-Select -->
+  <div class="modal-backdrop" id="modal-status">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Filter by Status</div>
+        <button class="btn-icon" onclick="closeStatusModal()">✕</button>
+      </div>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="chk-inprogress" value="In Progress" checked>
+        <span style="display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M12 2a10 10 0 1 1-10 10"/><polygon points="10 8 16 12 10 16 10 8" fill="#0ea5e9"/></svg>
+          In Progress
+        </span>
+      </label>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="chk-available" value="Available" checked>
+        <span style="display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/></svg>
+          Available / Ready to Listen
+        </span>
+      </label>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="chk-wishlist" value="Wishlist" checked>
+        <span style="display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/></svg>
+          Wishlist
+        </span>
+      </label>
+      <label class="modal-checkbox-row">
+        <input type="checkbox" id="chk-listened" value="Listened" checked>
+        <span style="display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6.5-6.5"/><path d="m13.5 15 1.5 1.5 4.5-4.5"/></svg>
+          Listened
+        </span>
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="toggleAllStatusFilters(true)">Select All</button>
+        <button class="btn btn-secondary" onclick="toggleAllStatusFilters(false)">Clear All</button>
+        <button class="btn btn-primary" onclick="applyStatusModal()">Apply</button>
+      </div>
+    </div>
   </div>
 
-  <div class="stats-bar">
-    <span id="resultCount">Connecting to Google Drive...</span>
-    <span id="activeFilterLabel">Filter: ALL</span>
+  <!-- Modal: Gemini API Key Setup -->
+  <div class="modal-backdrop" id="modal-apikey">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Gemini API Key</div>
+        <button class="btn-icon" onclick="closeKeyModal()">✕</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+        To generate book summaries and "Story So Far" recaps, provide your Google Gemini API key. It is saved only in this browser's private local storage.
+      </p>
+      <input type="password" id="input-gemini-key" class="search-input" placeholder="AIzaSy..." style="margin-bottom:14px;">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="clearApiKey()">Clear Key</button>
+        <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+      </div>
+    </div>
   </div>
-
-  <div id="loadingMsg" class="loading-msg">Loading library from Google Sheets...</div>
-  <div class="list-container" id="bookList"></div>
 
   <script>
-    // Live published Google Sheet link
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQenTx1wIMMUT--VThAoStkCVuW9U-52HThQqFCYA2iew_UHCtA--f5-JlrZNYyz3dH12OD71bUlV4R/pub?output=csv';
+    // --- CONFIGURATION ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPOQkhpp4ETI3IGOUqF3yzPY_PpPnTpwGyoS7NDqD0noAbLS3ky8neN8AjpwONNKf8/exec";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/1af_ss4MLMPs8MeHO9lnneNM4JjhSDgIpApi1iecahl4/gviz/tq?tqx=out:csv";
 
-    let masterData = [];
-    let currentFilter = 'all';
+    // Global App State
+    let libraryData = [];
+    let activeMainTab = "titles";
+    let selectedPlatform = "all";
+    let selectedStatuses = ["In Progress", "Available", "Wishlist", "Listened"];
+    let selectedBook = null;
+    let navHistory = [];
+    let pendingUpdateStatus = "";
+    let pendingUpdateRating = 0;
 
-    window.onload = function() {
-      fetchSheetData();
-    };
+    // --- INITIALIZATION ---
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchLibraryData();
+    });
 
-    function fetchSheetData() {
-      document.getElementById('loadingMsg').style.display = 'block';
-      document.getElementById('loadingMsg').textContent = 'Fetching latest updates from Google Sheets...';
-      
-      // Cache-busting timestamp ensures phone browser always fetches latest sheet edits
-      const url = SHEET_CSV_URL + '&_t=' + new Date().getTime();
-
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error('Network error');
-          return res.text();
-        })
-        .then(csv => {
-          parseCSV(csv);
-          document.getElementById('loadingMsg').style.display = 'none';
-        })
-        .catch(err => {
-          console.error(err);
-          document.getElementById('loadingMsg').innerHTML = 
-            'Could not load Google Sheet. Please check connection and refresh.';
-        });
+    async function fetchLibraryData() {
+      showToast("Loading library...");
+      try {
+        const response = await fetch(CSV_URL);
+        const csvText = await response.text();
+        libraryData = parseCSV(csvText);
+        showToast("Library loaded: " + libraryData.length + " titles");
+        renderCurrentTab();
+      } catch (err) {
+        console.error(err);
+        showToast("Error loading Google Sheet CSV");
+      }
     }
 
+    // CSV Parser supporting quotes and multi-line fields
     function parseCSV(text) {
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-      if (lines.length < 2) return;
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"\$/g, ''));
-      
-      masterData = lines.slice(1).map(line => {
-        const row = [];
-        let inQuotes = false;
-        let token = '';
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"' && (i === 0 || line[i-1] !== '\\')) {
-            inQuotes = !inQuotes;
-          } else if (char === ',' && !inQuotes) {
-            row.push(token.trim());
-            token = '';
-          } else {
-            token += char;
-          }
+      const rows = [];
+      let row = [""];
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        const next = text[i + 1];
+        if (c === '"' && inQuotes && next === '"') {
+          row[row.length - 1] += '"';
+          i++;
+        } else if (c === '"') {
+          inQuotes = !inQuotes;
+        } else if (c === ',' && !inQuotes) {
+          row.push('');
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') { i++; }
+          rows.push(row);
+          row = [''];
+        } else {
+          row[row.length - 1] += c;
         }
-        row.push(token.trim());
+      }
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      if (rows.length < 2) return [];
 
-        let obj = {};
-        headers.forEach((h, idx) => { 
-          obj[h] = row[idx] ? row[idx].replace(/^"|"\$/g, '') : ''; 
+      const headers = rows[0].map(h => h.trim().replace(/^"|"$/g, ''));
+      const items = [];
+
+      for (let r = 1; r < rows.length; r++) {
+        const cells = rows[r];
+        const item = {};
+        headers.forEach((h, idx) => {
+          item[h] = (cells[idx] || '').trim().replace(/^"|"$/g, '');
         });
-        return obj;
-      });
 
-      renderBooks();
+        // Filter out blank rows
+        if (!item.Title || !item.Title.trim()) return items;
+
+        // Normalize Fields
+        item.Rating = parseInt(item.Rating, 10) || 0;
+        item.Series_Number = item.Series_Number || item.Book_Number || "";
+        items.push(item);
+      }
+      return items;
     }
 
-    function setFilter(filter, ev) {
-      currentFilter = filter;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      if (ev && ev.target) ev.target.classList.add('active');
-      renderBooks();
+    // --- NAVIGATION CONTROLLER ---
+    function switchMainTab(tab) {
+      activeMainTab = tab;
+      navHistory = [];
+      document.getElementById("btn-back").style.display = "none";
+      document.getElementById("main-nav-tabs").style.display = "flex";
+      document.getElementById("page-title").textContent = "Audiobook Library";
+
+      document.querySelectorAll(".nav-tab").forEach(el => el.classList.remove("active"));
+      event.target.classList.add("active");
+
+      showScreen("view-" + tab);
+      renderCurrentTab();
     }
 
-    document.getElementById('searchInput').addEventListener('input', renderBooks);
+    function pushView(screenId, title) {
+      navHistory.push({
+        screenId: getCurrentActiveScreenId(),
+        title: document.getElementById("page-title").textContent
+      });
+      document.getElementById("btn-back").style.display = "flex";
+      document.getElementById("main-nav-tabs").style.display = "none";
+      document.getElementById("page-title").textContent = title || "Details";
+      showScreen(screenId);
+    }
 
-    function renderBooks() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const container = document.getElementById('bookList');
-      container.innerHTML = '';
-
-      let filtered = masterData.filter(b => {
-        const title = (b.Title || b.title || '').toLowerCase();
-        const author = (b.Author || b.author || '').toLowerCase();
-        const series = (b.Series || b.series || '').toLowerCase();
-        const narrator = (b.Narrator || b.narrator || '').toLowerCase();
-
-        const matchesSearch = title.includes(search) || author.includes(search) || 
-                              series.includes(search) || narrator.includes(search);
-        if (!matchesSearch) return false;
-
-        const status = b.Status || b.status || '';
-        const platform = b.Platform || b.platform || '';
-
-        if (currentFilter === 'ready') {
-          return status === 'Unread / Owned' || status === 'Available to Borrow' || status.includes('In Progress');
-        } else if (currentFilter === 'audible') {
-          return platform === 'Audible';
-        } else if (currentFilter === 'borrowbox') {
-          return platform.includes('BorrowBox');
-        } else if (currentFilter === 'wishlist') {
-          return platform.includes('Wishlist') || status === 'On Reserve';
-        } else if (currentFilter === 'series') {
-          return (series.trim() !== '');
+    function navigateBack() {
+      if (navHistory.length > 0) {
+        const prev = navHistory.pop();
+        showScreen(prev.screenId);
+        document.getElementById("page-title").textContent = prev.title;
+        if (navHistory.length === 0) {
+          document.getElementById("btn-back").style.display = "none";
+          document.getElementById("main-nav-tabs").style.display = "flex";
         }
-        return true;
+      }
+    }
+
+    function getCurrentActiveScreenId() {
+      const active = document.querySelector(".view-screen.active");
+      return active ? active.id : "view-titles";
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll(".view-screen").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add("active");
+    }
+
+    function renderCurrentTab() {
+      if (activeMainTab === "titles") renderTitleList();
+      else if (activeMainTab === "authors") renderAuthorList();
+      else if (activeMainTab === "series") renderSeriesList();
+      else if (activeMainTab === "narrators") renderNarratorList();
+    }
+
+    // --- TITLE TAB LOGIC & FILTERS ---
+    function handleTitleSearch(val) {
+      document.getElementById("clear-title-search").style.display = val ? "block" : "none";
+      renderTitleList();
+    }
+
+    function clearTitleSearch() {
+      const input = document.getElementById("search-title");
+      input.value = "";
+      document.getElementById("clear-title-search").style.display = "none";
+      renderTitleList();
+    }
+
+    function setPlatformFilter(plat) {
+      selectedPlatform = plat;
+      document.querySelectorAll(".segmented-pill .pill-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.textContent.toLowerCase() === plat.toLowerCase());
+      });
+      renderTitleList();
+    }
+
+    function openStatusModal() {
+      document.getElementById("modal-status").classList.add("active");
+    }
+    function closeStatusModal() {
+      document.getElementById("modal-status").classList.remove("active");
+    }
+    function toggleAllStatusFilters(checked) {
+      document.querySelectorAll("#modal-status input[type='checkbox']").forEach(cb => cb.checked = checked);
+    }
+    function applyStatusModal() {
+      selectedStatuses = [];
+      document.querySelectorAll("#modal-status input[type='checkbox']:checked").forEach(cb => {
+        selectedStatuses.push(cb.value);
+      });
+      const lbl = selectedStatuses.length === 4 ? "Status: All" : "Status (" + selectedStatuses.length + ")";
+      document.getElementById("status-filter-label").textContent = lbl;
+      closeStatusModal();
+      renderTitleList();
+    }
+
+    function isAvailable(book) {
+      const s = (book.Status || "").toLowerCase();
+      const p = (book.Platform || "").toLowerCase();
+      if (p.includes("audible")) {
+        return s.includes("owned") || s.includes("available") || s === "unread / owned";
+      }
+      if (p.includes("borrowbox")) {
+        return s.includes("reserved") || s.includes("on loan") || s.includes("available");
+      }
+      return s.includes("available");
+    }
+
+    function renderTitleList(filteredSubset, contextTitle) {
+      const container = document.getElementById("titles-container");
+      const list = filteredSubset || libraryData;
+      const search = (document.getElementById("search-title").value || "").toLowerCase();
+      const sortBy = document.getElementById("sort-select").value;
+
+      let items = list.filter(book => {
+        // Text search
+        if (search && !book.Title.toLowerCase().includes(search)) return false;
+
+        // Platform filter
+        if (selectedPlatform !== "all" && !book.Platform.toLowerCase().includes(selectedPlatform.toLowerCase())) {
+          return false;
+        }
+
+        // Status multi-select logic
+        const s = book.Status || "";
+        const isProg = s.toLowerCase().includes("in progress");
+        const isListened = s.toLowerCase().includes("listened");
+        const isWish = s.toLowerCase().includes("wishlist");
+        const isAvail = isAvailable(book);
+
+        const matches = (
+          (selectedStatuses.includes("In Progress") && isProg) ||
+          (selectedStatuses.includes("Available") && isAvail) ||
+          (selectedStatuses.includes("Wishlist") && isWish) ||
+          (selectedStatuses.includes("Listened") && isListened)
+        );
+        return matches;
       });
 
-      if (currentFilter === 'series') {
-        filtered.sort((a, b) => {
-          const sA = (a.Series || a.series || '');
-          const sB = (b.Series || b.series || '');
-          const nA = parseFloat(a.Book_Number || a.book_number) || 0;
-          const nB = parseFloat(b.Book_Number || b.book_number) || 0;
-          return sA.localeCompare(sB) || nA - nB;
-        });
+      // Sorting
+      items.sort((a, b) => {
+        if (sortBy === "title-az") return a.Title.localeCompare(b.Title);
+        if (sortBy === "author-az") return a.Author.localeCompare(b.Author);
+        if (sortBy === "rating-desc") return (b.Rating || 0) - (a.Rating || 0);
+        if (sortBy === "series-seq") {
+          const sComp = (a.Series || "").localeCompare(b.Series || "");
+          if (sComp !== 0) return sComp;
+          return parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0);
+        }
+        return 0;
+      });
+
+      container.innerHTML = "";
+      if (items.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">No books match criteria.</div>`;
+        return;
       }
 
-      document.getElementById('resultCount').textContent = `${filtered.length} titles`;
-      document.getElementById('activeFilterLabel').textContent = `Filter: ${currentFilter.toUpperCase()}`;
+      items.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => openSummaryView(book);
 
-      filtered.forEach(b => {
-        const card = document.createElement('div');
-        card.className = 'book-card';
-
-        const platform = b.Platform || b.platform || '';
-        const status = b.Status || b.status || '';
-        const avail = b.Availability_Date || b.availability_date || '';
-        const duration = b.Duration || b.duration || '';
-        const series = b.Series || b.series || '';
-        const bookNum = b.Book_Number || b.book_number || '';
-        const title = b.Title || b.title || '';
-        const author = b.Author || b.author || '';
-        const narrator = b.Narrator || b.narrator || '';
-
-        let platformBadgeClass = 'badge-audible';
-        if (platform.includes('BorrowBox')) platformBadgeClass = 'badge-borrowbox';
-        if (platform.includes('Wishlist')) platformBadgeClass = 'badge-wishlist';
+        // Safe duration display via concatenation
+        const durationStr = book.Duration ? book.Duration : "Unknown duration";
+        const seriesInfo = book.Series ? (book.Series + (book.Series_Number ? " #" + book.Series_Number : "")) : "Standalone";
 
         card.innerHTML = `
-          <div class="book-title">${title}</div>
-          <div class="book-author">${author} ${narrator ? '• Narrated by ' + narrator : ''}</div>
-          ${series ? `<div class="series-tag">${series}${bookNum ? '#' + bookNum : ''}</div>` : ''}
-          <div class="badge-row">
-            <span class="badge ${platformBadgeClass}">${platform}</span>
-            <span class="badge badge-status">${status}</span>
-            ${avail ? `<span class="badge badge-avail">\${avail}</span>` : ''}
-            ${duration ? `<span class="badge badge-status">\${duration}</span>` : ''}
+          <div class="book-card-title">${escapeHTML(book.Title)}</div>
+          <div class="book-card-meta">${escapeHTML(book.Author)} • ${escapeHTML(seriesInfo)}</div>
+          <div class="card-footer">
+            <div style="font-size:0.8rem; color:var(--text-muted);">${escapeHTML(durationStr)}</div>
+            <div class="badge-group">
+              ${renderRatingStars(book.Rating)}
+              ${renderPlatformIcon(book.Platform)}
+              ${renderStatusIcon(book)}
+            </div>
           </div>
         `;
         container.appendChild(card);
       });
+    }
+
+    // --- AUTHOR TAB LOGIC ---
+    function clearAuthorSearch() {
+      document.getElementById("search-author").value = "";
+      document.getElementById("clear-author-search").style.display = "none";
+      renderAuthorList();
+    }
+
+    function renderAuthorList(searchVal) {
+      const container = document.getElementById("authors-container");
+      const search = (searchVal || document.getElementById("search-author").value || "").toLowerCase();
+      document.getElementById("clear-author-search").style.display = search ? "block" : "none";
+
+      const authors = [...new Set(libraryData.map(b => b.Author).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      const filtered = authors.filter(a => a.toLowerCase().includes(search));
+
+      container.innerHTML = "";
+      filtered.forEach(author => {
+        const count = libraryData.filter(b => b.Author === author).length;
+        const row = document.createElement("div");
+        row.className = "drilldown-item";
+        row.onclick = () => openSeries1View('author', author);
+        row.innerHTML = `
+          <span class="drilldown-title">${escapeHTML(author)}</span>
+          <span class="drilldown-counts">${count} title${count > 1 ? 's' : ''}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // --- SERIES TAB LOGIC ---
+    function clearSeriesSearch() {
+      document.getElementById("search-series").value = "";
+      document.getElementById("clear-series-search").style.display = "none";
+      renderSeriesList();
+    }
+
+    function renderSeriesList(searchVal) {
+      const container = document.getElementById("series-container");
+      const search = (searchVal || document.getElementById("search-series").value || "").toLowerCase();
+      document.getElementById("clear-series-search").style.display = search ? "block" : "none";
+
+      const seriesMap = new Map();
+      libraryData.forEach(b => {
+        const s = b.Series ? b.Series.trim() : null;
+        if (!s) return;
+        if (!seriesMap.has(s)) seriesMap.set(s, []);
+        seriesMap.get(s).push(b);
+      });
+
+      const seriesList = Array.from(seriesMap.keys()).sort((a,b) => a.localeCompare(b));
+      const filtered = seriesList.filter(s => s.toLowerCase().includes(search));
+
+      container.innerHTML = "";
+      filtered.forEach(sName => {
+        const books = seriesMap.get(sName);
+        const completed = books.filter(b => (b.Status || '').toLowerCase().includes('listened')).length;
+        const unread = books.filter(b => isAvailable(b)).length;
+
+        const row = document.createElement("div");
+        row.className = "drilldown-item";
+        row.onclick = () => openSeriesTitles(sName, books);
+        row.innerHTML = `
+          <span class="drilldown-title">${escapeHTML(sName)}</span>
+          <div class="drilldown-counts">
+            <span style="color:var(--text-muted);">Read: ${completed}</span>
+            <span style="color:var(--accent-available);">Available: ${unread}</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // --- NARRATOR TAB LOGIC ---
+    function clearNarratorSearch() {
+      document.getElementById("search-narrator").value = "";
+      document.getElementById("clear-narrator-search").style.display = "none";
+      renderNarratorList();
+    }
+
+    function renderNarratorList(searchVal) {
+      const container = document.getElementById("narrators-container");
+      const search = (searchVal || document.getElementById("search-narrator").value || "").toLowerCase();
+      document.getElementById("clear-narrator-search").style.display = search ? "block" : "none";
+
+      const narrators = [...new Set(libraryData.map(b => b.Narrator).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+      const filtered = narrators.filter(n => n.toLowerCase().includes(search));
+
+      container.innerHTML = "";
+      filtered.forEach(narrator => {
+        const count = libraryData.filter(b => b.Narrator === narrator).length;
+        const row = document.createElement("div");
+        row.className = "drilldown-item";
+        row.onclick = () => openSeries1View('narrator', narrator);
+        row.innerHTML = `
+          <span class="drilldown-title">${escapeHTML(narrator)}</span>
+          <span class="drilldown-counts">${count} title${count > 1 ? 's' : ''}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // --- SERIES1 VIEW (Author or Narrator Drill-down) ---
+    function openSeries1View(type, name) {
+      pushView("view-series1", name);
+      const container = document.getElementById("series1-container");
+      container.innerHTML = "";
+
+      const books = libraryData.filter(b => type === 'author' ? b.Author === name : b.Narrator === name);
+
+      // "Show All Titles" top button
+      const allBtn = document.getElementById("btn-series1-all");
+      allBtn.textContent = `Show All ${books.length} Titles by ${name}`;
+      allBtn.onclick = () => {
+        pushView("view-titles", `${name} - All Titles`);
+        renderTitleList(books);
+      };
+
+      // Group by Series
+      const seriesMap = new Map();
+      const standalones = [];
+
+      books.forEach(b => {
+        if (!b.Series || !b.Series.trim()) {
+          standalones.push(b);
+        } else {
+          const s = b.Series.trim();
+          if (!seriesMap.has(s)) seriesMap.set(s, []);
+          seriesMap.get(s).push(b);
+        }
+      });
+
+      // Render Series
+      seriesMap.forEach((sBooks, sName) => {
+        const completed = sBooks.filter(b => (b.Status || '').toLowerCase().includes('listened')).length;
+        const unread = sBooks.filter(b => isAvailable(b)).length;
+        const row = document.createElement("div");
+        row.className = "drilldown-item";
+        row.onclick = () => openSeriesTitles(sName, sBooks);
+        row.innerHTML = `
+          <span class="drilldown-title">${escapeHTML(sName)}</span>
+          <div class="drilldown-counts">
+            <span style="color:var(--text-muted);">Read: ${completed}</span>
+            <span style="color:var(--accent-available);">Available: ${unread}</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      // Standalones group if any
+      if (standalones.length > 0) {
+        const row = document.createElement("div");
+        row.className = "drilldown-item";
+        row.onclick = () => {
+          pushView("view-titles", "Standalone Titles");
+          renderTitleList(standalones);
+        };
+        row.innerHTML = `
+          <span class="drilldown-title">Standalone Titles</span>
+          <div class="drilldown-counts">
+            <span>${standalones.length} title${standalones.length > 1 ? 's' : ''}</span>
+          </div>
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function openSeriesTitles(seriesName, books) {
+      pushView("view-titles", seriesName);
+      // Clone array to sort by series sequence
+      const sorted = [...books].sort((a,b) => parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0));
+      renderTitleList(sorted);
+    }
+
+    // --- SUMMARY VIEW & AI INTEGRATION ---
+    function openSummaryView(book) {
+      selectedBook = book;
+      pushView("view-summary", book.Title);
+
+      const durationStr = book.Duration ? book.Duration : "Unknown duration";
+      const seriesInfo = book.Series ? (book.Series + (book.Series_Number ? " (Book " + book.Series_Number + ")" : "")) : "Standalone";
+
+      document.getElementById("summary-header").innerHTML = `
+        <h2 style="font-size:1.25rem; font-weight:700; margin-bottom:6px;">${escapeHTML(book.Title)}</h2>
+        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:8px;">
+          By <strong>${escapeHTML(book.Author)}</strong> • Narrated by ${escapeHTML(book.Narrator || 'Unknown')}
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+          ${escapeHTML(seriesInfo)} • ${escapeHTML(durationStr)}
+        </div>
+        <div class="card-footer" style="padding-top:10px;">
+          <div class="stars-row">${renderRatingStars(book.Rating)}</div>
+          <div class="badge-group">
+            ${renderPlatformIcon(book.Platform)}
+            ${renderStatusIcon(book)}
+          </div>
+        </div>
+      `;
+
+      // Hide or show "Story So Far" button (Option A: Hidden on Book 1 or standalones)
+      const storyBtn = document.getElementById("btn-story-so-far");
+      const num = parseFloat(book.Series_Number);
+      if (!book.Series || !book.Series.trim() || isNaN(num) || num <= 1) {
+        storyBtn.style.display = "none";
+      } else {
+        storyBtn.style.display = "block";
+      }
+
+      fetchGeminiSummary(false);
+    }
+
+    async function fetchGeminiSummary(forceRegen) {
+      const summaryBox = document.getElementById("summary-content");
+      const cacheKey = "sum_" + selectedBook.Title + "_" + selectedBook.Author;
+      if (!forceRegen) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          summaryBox.innerHTML = cached;
+          return;
+        }
+      }
+
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        summaryBox.innerHTML = `<button class="btn btn-secondary" onclick="openKeyModal()">Set Gemini API Key to Generate Summary</button>`;
+        return;
+      }
+
+      summaryBox.innerHTML = `<div class="spinner"></div>`;
+
+      const prompt = `Provide a concise, engaging summary of the audiobook '${selectedBook.Title}' by ${selectedBook.Author} (part of the ${selectedBook.Series || 'Standalone'} series, book number ${selectedBook.Series_Number || 'N/A'}). Focus on the main premise and hook without major spoilers. Keep it to 2-3 brief paragraphs.`;
+
+      try {
+        const res = await callGeminiAPI(apiKey, prompt);
+        summaryBox.innerHTML = res.replace(/\n\n/g, '<br><br>');
+        localStorage.setItem(cacheKey, summaryBox.innerHTML);
+      } catch (err) {
+        summaryBox.innerHTML = `<span style="color:#ef4444;">Failed to generate summary: ${err.message}</span>`;
+      }
+    }
+
+    // --- STORY SO FAR VIEW ---
+    function openStoryScreen() {
+      pushView("view-story", "Story So Far");
+      const book = selectedBook;
+      const seriesInfo = book.Series + " (Recap up to Book " + book.Series_Number + ")";
+
+      document.getElementById("story-header").innerHTML = `
+        <h2 style="font-size:1.15rem; font-weight:700;">${escapeHTML(book.Title)}</h2>
+        <div style="font-size:0.85rem; color:var(--text-muted);">${escapeHTML(seriesInfo)}</div>
+      `;
+
+      fetchGeminiStory(false);
+    }
+
+    async function fetchGeminiStory(forceRegen) {
+      const storyBox = document.getElementById("story-content");
+      const cacheKey = "story_" + selectedBook.Series + "_" + selectedBook.Series_Number;
+      if (!forceRegen) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          storyBox.innerHTML = cached;
+          return;
+        }
+      }
+
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        storyBox.innerHTML = `<button class="btn btn-secondary" onclick="openKeyModal()">Set Gemini API Key to Generate Recap</button>`;
+        return;
+      }
+
+      storyBox.innerHTML = `<div class="spinner"></div>`;
+
+      const prompt = `You are an expert recap assistant for audiobook series. Provide a concise, spoiler-free recap of the ${selectedBook.Series} series by ${selectedBook.Author} up to, but NOT including, book ${selectedBook.Series_Number}: '${selectedBook.Title}'. Do not include any plot points, twists, character introductions, or character deaths from '${selectedBook.Title}' or any subsequent books. Focus exclusively on the main character arcs, major plot resolutions, and the state of the world at the exact conclusion of the prior book. Keep it concise, structured, and easy to read before starting '${selectedBook.Title}'.`;
+
+      try {
+        const res = await callGeminiAPI(apiKey, prompt);
+        storyBox.innerHTML = res.replace(/\n\n/g, '<br><br>');
+        localStorage.setItem(cacheKey, storyBox.innerHTML);
+      } catch (err) {
+        storyBox.innerHTML = `<span style="color:#ef4444;">Failed to generate recap: ${err.message}</span>`;
+      }
+    }
+
+    async function callGeminiAPI(apiKey, prompt) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error ? errJson.error.message : `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      return data.candidates[0].content.parts[0].text;
+    }
+
+    // --- UPDATE VIEW & GOOGLE APPS SCRIPT WRITE-BACK ---
+    function openUpdateScreen() {
+      pushView("view-update", "Update " + selectedBook.Title);
+      pendingUpdateStatus = selectedBook.Status || "Wishlist";
+      pendingUpdateRating = selectedBook.Rating || 0;
+
+      document.getElementById("update-header").innerHTML = `
+        <div style="font-weight:700; font-size:1.1rem; margin-bottom:4px;">${escapeHTML(selectedBook.Title)}</div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">${escapeHTML(selectedBook.Author)}</div>
+      `;
+
+      renderUpdateRatingStars();
+      renderUpdateStatusOptions();
+    }
+
+    function setUpdateRating(val) {
+      pendingUpdateRating = val;
+      renderUpdateRatingStars();
+    }
+
+    function renderUpdateRatingStars() {
+      const spans = document.querySelectorAll("#update-rating-stars span");
+      spans.forEach((span, idx) => {
+        span.classList.toggle("active", idx < pendingUpdateRating);
+      });
+    }
+
+    function renderUpdateStatusOptions() {
+      const statuses = ["In Progress", "Available", "Wishlist", "Listened"];
+      const container = document.getElementById("update-status-options");
+      container.innerHTML = "";
+
+      statuses.forEach(st => {
+        const opt = document.createElement("div");
+        opt.className = "status-picker-option" + (pendingUpdateStatus.toLowerCase().includes(st.toLowerCase()) ? " selected" : "");
+        opt.onclick = () => {
+          pendingUpdateStatus = st;
+          renderUpdateStatusOptions();
+        };
+        opt.innerHTML = `
+          <span>${renderStatusIcon({ Status: st, Platform: selectedBook.Platform })}</span>
+          <span style="font-weight:600; font-size:0.9rem;">${st}</span>
+        `;
+        container.appendChild(opt);
+      });
+    }
+
+    async function submitBookUpdate() {
+      const book = selectedBook;
+      showToast("Saving changes...");
+
+      // Optimistic local update
+      book.Rating = pendingUpdateRating;
+      book.Status = pendingUpdateStatus;
+      renderTitleList();
+
+      // Write-back to Google Sheet via Apps Script
+      try {
+        const payload = {
+          title: book.Title,
+          status: pendingUpdateStatus,
+          rating: pendingUpdateRating
+        };
+
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (result.status === "success") {
+          showToast("Changes saved to Google Sheet!");
+          navigateBack(); // Back to Summary
+          openSummaryView(book); // Refresh summary header
+        } else {
+          showToast("Sheet update warning: " + result.message);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Network write error (Optimistic display retained)");
+      }
+    }
+
+    // --- ICON & STAR RENDERING SUITE ---
+    function renderRatingStars(rating) {
+      if (!rating || rating === 0) return '';
+      let stars = '<div class="stars-row">';
+      for (let i = 1; i <= 5; i++) {
+        stars += `<span class="star ${i <= rating ? 'filled' : ''}">★</span>`;
+      }
+      stars += '</div>';
+      return stars;
+    }
+
+    function renderPlatformIcon(platform) {
+      const p = (platform || '').toLowerCase();
+      if (p.includes('audible')) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Audible">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <path d="M8 8a3 3 0 0 1 0 6"/>
+            <path d="M11 6a6 6 0 0 1 0 10"/>
+          </svg>
+        `;
+      }
+      if (p.includes('borrowbox')) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="BorrowBox">
+            <path d="m12 3-8 4.5v9L12 21l8-4.5v-9L12 3z"/>
+            <path d="M12 12 4 7.5"/>
+            <path d="m12 12 8-4.5"/>
+            <path d="M12 12v9"/>
+            <circle cx="12" cy="12" r="2.5" fill="#10b981"/>
+          </svg>
+        `;
+      }
+      return '';
+    }
+
+    function renderStatusIcon(book) {
+      const s = (book.Status || '').toLowerCase();
+      if (s.includes('in progress')) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="In Progress">
+            <path d="M12 2a10 10 0 1 1-10 10"/>
+            <polygon points="10 8 16 12 10 16 10 8" fill="#0ea5e9"/>
+          </svg>
+        `;
+      }
+      if (s.includes('listened')) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Listened">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="m7.5 12 3 3 6.5-6.5"/>
+            <path d="m13.5 15 1.5 1.5 4.5-4.5"/>
+          </svg>
+        `;
+      }
+      if (isAvailable(book)) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Available">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="8 12 11 15 16 9"/>
+          </svg>
+        `;
+      }
+      if (s.includes('wishlist')) {
+        return `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Wishlist">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            <polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/>
+          </svg>
+        `;
+      }
+      return '';
+    }
+
+    // --- UTILITIES ---
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    // API Key Storage
+    function getApiKey() {
+      return localStorage.getItem("GEMINI_API_KEY") || "";
+    }
+    function saveApiKey() {
+      const key = document.getElementById("input-gemini-key").value.trim();
+      if (key) {
+        localStorage.setItem("GEMINI_API_KEY", key);
+        showToast("Gemini key saved!");
+        closeKeyModal();
+      }
+    }
+    function clearApiKey() {
+      localStorage.removeItem("GEMINI_API_KEY");
+      document.getElementById("input-gemini-key").value = "";
+      showToast("Gemini key cleared");
+      closeKeyModal();
+    }
+    function openKeyModal() {
+      document.getElementById("input-gemini-key").value = getApiKey();
+      document.getElementById("modal-apikey").classList.add("active");
+    }
+    function closeKeyModal() {
+      document.getElementById("modal-apikey").classList.remove("active");
     }
   </script>
 </body>
