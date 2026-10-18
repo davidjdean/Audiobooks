@@ -233,7 +233,7 @@
     .book-card-title {
       font-size: 1.05rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       line-height: 1.3;
     }
 
@@ -242,6 +242,16 @@
       color: var(--text-muted);
       margin-bottom: 8px;
       line-height: 1.4;
+    }
+
+    .meta-link {
+      color: var(--accent-blue);
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .meta-link:hover {
+      color: #60a5fa;
     }
 
     .card-footer {
@@ -409,6 +419,31 @@
       align-items: center;
     }
 
+    .ai-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-tts {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-tts.speaking {
+      background-color: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+
     .ai-content {
       font-size: 0.95rem;
       line-height: 1.6;
@@ -490,7 +525,7 @@
       <div class="btn-icon" onclick="openKeyModal()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </div>
     </div>
@@ -586,11 +621,20 @@
       <div class="detail-section">
         <div class="section-title">
           <span>Book Summary</span>
-          <button class="btn-icon" onclick="fetchGeminiSummary(true)" title="Regenerate">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-          </button>
+          <div class="ai-controls">
+            <button class="btn-tts" id="btn-tts-summary" style="display:none;" onclick="toggleSpeech('summary-content', this)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <span>Listen</span>
+            </button>
+            <button class="btn-icon" id="btn-regen-summary" style="display:none;" onclick="fetchGeminiSummary(true)" title="Regenerate">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <div id="summary-content" class="ai-content"></div>
       </div>
@@ -607,11 +651,20 @@
       <div class="detail-section">
         <div class="section-title">
           <span>Series Recap (Up to Previous Book)</span>
-          <button class="btn-icon" onclick="fetchGeminiStory(true)" title="Regenerate">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-          </button>
+          <div class="ai-controls">
+            <button class="btn-tts" id="btn-tts-story" style="display:none;" onclick="toggleSpeech('story-content', this)">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <span>Listen</span>
+            </button>
+            <button class="btn-icon" id="btn-regen-story" style="display:none;" onclick="fetchGeminiStory(true)" title="Regenerate">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <div id="story-content" class="ai-content"></div>
       </div>
@@ -718,6 +771,7 @@
     let navHistory = [];
     let pendingUpdateStatus = "";
     let pendingUpdateRating = 0;
+    let activeUtterance = null;
 
     // --- INITIALIZATION ---
     window.addEventListener("DOMContentLoaded", () => {
@@ -740,6 +794,8 @@
 
     // CSV Parser supporting quotes, multi-line values, and empty intermediate rows
     function parseCSV(text) {
+      if (!text || !text.trim()) return [];
+
       const rows = [];
       let row = [""];
       let inQuotes = false;
@@ -774,10 +830,7 @@
           item[h] = (cells[idx] || '').trim().replace(/^"|"$/g, '');
         });
 
-        // Skip blank rows without aborting the entire dataset
-        if (!item.Title || !item.Title.trim()) {
-          continue;
-        }
+        if (!item.Title || !item.Title.trim()) continue;
 
         item.Rating = parseInt(item.Rating, 10) || 0;
         item.Series_Number = item.Series_Number || item.Book_Number || "";
@@ -786,29 +839,99 @@
       return items;
     }
 
-    // Status Helper
+    // --- STATUS HELPERS ---
     function isCompleted(book) {
       const s = (book.Status || "").toLowerCase().trim();
       return s.includes("listened") || s.includes("read") || s.includes("finished") || s.includes("completed");
     }
 
     function isAvailable(book) {
+      if (isCompleted(book)) return false;
       const s = (book.Status || "").toLowerCase().trim();
       const p = (book.Platform || "").toLowerCase().trim();
-      if (isCompleted(book)) return false;
+
+      if (s.includes("in progress") || s.includes("wishlist")) return false;
+
+      // Audible availability
       if (p.includes("audible")) {
-        return s.includes("owned") || s.includes("available") || s === "unread / owned";
+        return s.includes("unread") || s.includes("owned") || s.includes("available") || s === "unread / owned";
       }
+
+      // BorrowBox availability
       if (p.includes("borrowbox")) {
         return s.includes("reserved") || s.includes("on loan") || s.includes("available");
       }
-      return s.includes("available");
+
+      return s.includes("unread") || s.includes("available") || s.includes("owned");
+    }
+
+    // --- SPEECH SYNTHESIS (TTS) ---
+    function stopSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      document.querySelectorAll('.btn-tts').forEach(btn => {
+        btn.classList.remove('speaking');
+        btn.querySelector('span').textContent = 'Listen';
+      });
+      activeUtterance = null;
+    }
+
+    function toggleSpeech(elementId, btn) {
+      if (!('speechSynthesis' in window)) {
+        showToast("Text-to-speech is not supported in this browser.");
+        return;
+      }
+
+      if (window.speechSynthesis.speaking) {
+        stopSpeech();
+        return;
+      }
+
+      const el = document.getElementById(elementId);
+      const text = el ? el.innerText.trim() : '';
+      if (!text) return;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      utterance.onend = () => {
+        btn.classList.remove('speaking');
+        btn.querySelector('span').textContent = 'Listen';
+        activeUtterance = null;
+      };
+
+      utterance.onerror = () => {
+        btn.classList.remove('speaking');
+        btn.querySelector('span').textContent = 'Listen';
+        activeUtterance = null;
+      };
+
+      btn.classList.add('speaking');
+      btn.querySelector('span').textContent = 'Stop';
+      activeUtterance = utterance;
+      window.speechSynthesis.speak(utterance);
     }
 
     // --- NAVIGATION CONTROLLER ---
+    function resetAllSearches() {
+      ['search-title', 'search-author', 'search-series', 'search-narrator'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+      });
+      ['clear-title-search', 'clear-author-search', 'clear-series-search', 'clear-narrator-search'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = 'none';
+      });
+    }
+
     function switchMainTab(tab) {
+      stopSpeech();
       activeMainTab = tab;
       navHistory = [];
+      resetAllSearches();
+
       document.getElementById("btn-back").style.display = "none";
       document.getElementById("main-nav-tabs").style.display = "flex";
       document.getElementById("page-title").textContent = "Audiobook Library";
@@ -821,6 +944,7 @@
     }
 
     function pushView(screenId, title) {
+      stopSpeech();
       navHistory.push({
         screenId: getCurrentActiveScreenId(),
         title: document.getElementById("page-title").textContent
@@ -832,6 +956,7 @@
     }
 
     function navigateBack() {
+      stopSpeech();
       if (navHistory.length > 0) {
         const prev = navHistory.pop();
         showScreen(prev.screenId);
@@ -909,7 +1034,7 @@
       const sortBy = document.getElementById("sort-select").value;
 
       let items = list.filter(book => {
-        // Search across Title and Full_Title
+        // Text search across Title and Full_Title
         if (search) {
           const t = (book.Title || "").toLowerCase();
           const ft = (book.Full_Title || "").toLowerCase();
@@ -921,7 +1046,7 @@
           return false;
         }
 
-        // Bypass status filter when clicking through series
+        // Allow drill-down views to bypass global status modal
         if (bypassStatusFilter) return true;
 
         const s = (book.Status || "").toLowerCase();
@@ -964,11 +1089,16 @@
         card.onclick = () => openSummaryView(book);
 
         const durationStr = book.Duration ? book.Duration : "Unknown duration";
-        const seriesInfo = book.Series ? (book.Series + (book.Series_Number ? " #" + book.Series_Number : "")) : "Standalone";
+        const hasSeries = book.Series && book.Series.trim() !== "";
+        const seriesDisplay = hasSeries
+          ? `<span class="meta-link" onclick="event.stopPropagation(); drillDownSeries('${escapeQuotes(book.Series)}')">${escapeHTML(book.Series)}</span>${book.Series_Number ? " #" + escapeHTML(book.Series_Number) : ""}`
+          : "Standalone";
 
         card.innerHTML = `
           <div class="book-card-title">${escapeHTML(book.Title)}</div>
-          <div class="book-card-meta">${escapeHTML(book.Author)} • ${escapeHTML(seriesInfo)}</div>
+          <div class="book-card-meta">
+            By <span class="meta-link" onclick="event.stopPropagation(); drillDownAuthor('${escapeQuotes(book.Author)}')">${escapeHTML(book.Author)}</span> • ${seriesDisplay}
+          </div>
           <div class="card-footer">
             <div style="font-size:0.8rem; color:var(--text-muted);">${escapeHTML(durationStr)}</div>
             <div class="badge-group">
@@ -980,6 +1110,18 @@
         `;
         container.appendChild(card);
       });
+    }
+
+    // Direct card click-through navigations
+    function drillDownAuthor(authorName) {
+      clearTitleSearch();
+      openSeries1View('author', authorName);
+    }
+
+    function drillDownSeries(seriesName) {
+      clearTitleSearch();
+      const books = libraryData.filter(b => (b.Series || '').trim().toLowerCase() === seriesName.trim().toLowerCase());
+      openSeriesTitles(seriesName, books);
     }
 
     // --- AUTHOR TAB LOGIC ---
@@ -1002,7 +1144,10 @@
         const count = libraryData.filter(b => b.Author === author).length;
         const row = document.createElement("div");
         row.className = "drilldown-item";
-        row.onclick = () => openSeries1View('author', author);
+        row.onclick = () => {
+          clearTitleSearch();
+          openSeries1View('author', author);
+        };
         row.innerHTML = `
           <span class="drilldown-title">${escapeHTML(author)}</span>
           <span class="drilldown-counts">${count} title${count > 1 ? 's' : ''}</span>
@@ -1042,7 +1187,10 @@
 
         const row = document.createElement("div");
         row.className = "drilldown-item";
-        row.onclick = () => openSeriesTitles(sName, books);
+        row.onclick = () => {
+          clearTitleSearch();
+          openSeriesTitles(sName, books);
+        };
         row.innerHTML = `
           <span class="drilldown-title">${escapeHTML(sName)}</span>
           <div class="drilldown-counts">
@@ -1074,7 +1222,10 @@
         const count = libraryData.filter(b => b.Narrator === narrator).length;
         const row = document.createElement("div");
         row.className = "drilldown-item";
-        row.onclick = () => openSeries1View('narrator', narrator);
+        row.onclick = () => {
+          clearTitleSearch();
+          openSeries1View('narrator', narrator);
+        };
         row.innerHTML = `
           <span class="drilldown-title">${escapeHTML(narrator)}</span>
           <span class="drilldown-counts">${count} title${count > 1 ? 's' : ''}</span>
@@ -1094,6 +1245,7 @@
       const allBtn = document.getElementById("btn-series1-all");
       allBtn.textContent = `Show All ${books.length} Titles by ${name}`;
       allBtn.onclick = () => {
+        clearTitleSearch();
         pushView("view-titles", `${name} - All Titles`);
         renderTitleList(books, true);
       };
@@ -1116,7 +1268,10 @@
         const unread = sBooks.filter(b => isAvailable(b)).length;
         const row = document.createElement("div");
         row.className = "drilldown-item";
-        row.onclick = () => openSeriesTitles(sName, sBooks);
+        row.onclick = () => {
+          clearTitleSearch();
+          openSeriesTitles(sName, sBooks);
+        };
         row.innerHTML = `
           <span class="drilldown-title">${escapeHTML(sName)}</span>
           <div class="drilldown-counts">
@@ -1131,6 +1286,7 @@
         const row = document.createElement("div");
         row.className = "drilldown-item";
         row.onclick = () => {
+          clearTitleSearch();
           pushView("view-titles", "Standalone Titles");
           renderTitleList(standalones, true);
         };
@@ -1145,12 +1301,13 @@
     }
 
     function openSeriesTitles(seriesName, books) {
+      clearTitleSearch();
       pushView("view-titles", seriesName);
       const sorted = [...books].sort((a,b) => parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0));
       renderTitleList(sorted, true);
     }
 
-    // --- SUMMARY & AI INTEGRATION ---
+    // --- SUMMARY VIEW ---
     function openSummaryView(book) {
       selectedBook = book;
       pushView("view-summary", book.Title);
@@ -1175,6 +1332,7 @@
         </div>
       `;
 
+      // Hide or show "Story So Far" button for Book 1 or standalones
       const storyBtn = document.getElementById("btn-story-so-far");
       const num = parseFloat(book.Series_Number);
       if (!book.Series || !book.Series.trim() || isNaN(num) || num <= 1) {
@@ -1183,27 +1341,46 @@
         storyBtn.style.display = "block";
       }
 
-      fetchGeminiSummary(false);
+      // Check cache for existing summary
+      const cacheKey = "sum_" + selectedBook.Title + "_" + selectedBook.Author;
+      const cached = localStorage.getItem(cacheKey);
+      const summaryBox = document.getElementById("summary-content");
+      const ttsBtn = document.getElementById("btn-tts-summary");
+      const regenBtn = document.getElementById("btn-regen-summary");
+
+      if (cached) {
+        summaryBox.innerHTML = cached;
+        ttsBtn.style.display = "inline-flex";
+        regenBtn.style.display = "inline-flex";
+      } else {
+        ttsBtn.style.display = "none";
+        regenBtn.style.display = "none";
+        summaryBox.innerHTML = `
+          <button class="btn btn-secondary" style="width:100%;" onclick="fetchGeminiSummary(true)">
+            ✨ Generate Summary
+          </button>
+        `;
+      }
     }
 
     async function fetchGeminiSummary(forceRegen) {
+      stopSpeech();
       const summaryBox = document.getElementById("summary-content");
+      const ttsBtn = document.getElementById("btn-tts-summary");
+      const regenBtn = document.getElementById("btn-regen-summary");
       const cacheKey = "sum_" + selectedBook.Title + "_" + selectedBook.Author;
-      if (!forceRegen) {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          summaryBox.innerHTML = cached;
-          return;
-        }
-      }
 
       const apiKey = getApiKey();
       if (!apiKey) {
         summaryBox.innerHTML = `<button class="btn btn-secondary" onclick="openKeyModal()">Set Gemini API Key to Generate Summary</button>`;
+        ttsBtn.style.display = "none";
+        regenBtn.style.display = "none";
         return;
       }
 
       summaryBox.innerHTML = `<div class="spinner"></div>`;
+      ttsBtn.style.display = "none";
+      regenBtn.style.display = "none";
 
       const prompt = `Provide a concise, engaging summary of the audiobook '${selectedBook.Title}' by ${selectedBook.Author} (part of the ${selectedBook.Series || 'Standalone'} series, book number ${selectedBook.Series_Number || 'N/A'}). Focus on the main premise and hook without major spoilers. Keep it to 2-3 brief paragraphs.`;
 
@@ -1211,6 +1388,8 @@
         const res = await callGeminiAPI(apiKey, prompt);
         summaryBox.innerHTML = res.replace(/\n\n/g, '<br><br>');
         localStorage.setItem(cacheKey, summaryBox.innerHTML);
+        ttsBtn.style.display = "inline-flex";
+        regenBtn.style.display = "inline-flex";
       } catch (err) {
         summaryBox.innerHTML = `<span style="color:#ef4444;">Failed to generate summary: ${err.message}</span>`;
       }
@@ -1227,27 +1406,45 @@
         <div style="font-size:0.85rem; color:var(--text-muted);">${escapeHTML(seriesInfo)}</div>
       `;
 
-      fetchGeminiStory(false);
+      const cacheKey = "story_" + selectedBook.Series + "_" + selectedBook.Series_Number;
+      const cached = localStorage.getItem(cacheKey);
+      const storyBox = document.getElementById("story-content");
+      const ttsBtn = document.getElementById("btn-tts-story");
+      const regenBtn = document.getElementById("btn-regen-story");
+
+      if (cached) {
+        storyBox.innerHTML = cached;
+        ttsBtn.style.display = "inline-flex";
+        regenBtn.style.display = "inline-flex";
+      } else {
+        ttsBtn.style.display = "none";
+        regenBtn.style.display = "none";
+        storyBox.innerHTML = `
+          <button class="btn btn-secondary" style="width:100%;" onclick="fetchGeminiStory(true)">
+            ✨ Generate Recap
+          </button>
+        `;
+      }
     }
 
     async function fetchGeminiStory(forceRegen) {
+      stopSpeech();
       const storyBox = document.getElementById("story-content");
+      const ttsBtn = document.getElementById("btn-tts-story");
+      const regenBtn = document.getElementById("btn-regen-story");
       const cacheKey = "story_" + selectedBook.Series + "_" + selectedBook.Series_Number;
-      if (!forceRegen) {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          storyBox.innerHTML = cached;
-          return;
-        }
-      }
 
       const apiKey = getApiKey();
       if (!apiKey) {
         storyBox.innerHTML = `<button class="btn btn-secondary" onclick="openKeyModal()">Set Gemini API Key to Generate Recap</button>`;
+        ttsBtn.style.display = "none";
+        regenBtn.style.display = "none";
         return;
       }
 
       storyBox.innerHTML = `<div class="spinner"></div>`;
+      ttsBtn.style.display = "none";
+      regenBtn.style.display = "none";
 
       const prompt = `You are an expert recap assistant for audiobook series. Provide a concise, spoiler-free recap of the ${selectedBook.Series} series by ${selectedBook.Author} up to, but NOT including, book ${selectedBook.Series_Number}: '${selectedBook.Title}'. Do not include any plot points, twists, character introductions, or character deaths from '${selectedBook.Title}' or any subsequent books. Focus exclusively on the main character arcs, major plot resolutions, and the state of the world at the exact conclusion of the prior book. Keep it concise, structured, and easy to read before starting '${selectedBook.Title}'.`;
 
@@ -1255,13 +1452,14 @@
         const res = await callGeminiAPI(apiKey, prompt);
         storyBox.innerHTML = res.replace(/\n\n/g, '<br><br>');
         localStorage.setItem(cacheKey, storyBox.innerHTML);
+        ttsBtn.style.display = "inline-flex";
+        regenBtn.style.display = "inline-flex";
       } catch (err) {
         storyBox.innerHTML = `<span style="color:#ef4444;">Failed to generate recap: ${err.message}</span>`;
       }
     }
 
     async function callGeminiAPI(apiKey, prompt) {
-      // Updated to current gemini-3.8-flash model
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: 'POST',
@@ -1278,7 +1476,7 @@
       return data.candidates[0].content.parts[0].text;
     }
 
-    // --- UPDATE SCREEN & WRITE-BACK ---
+    // --- UPDATE VIEW & WRITE-BACK ---
     function openUpdateScreen() {
       pushView("view-update", "Update " + selectedBook.Title);
       pendingUpdateStatus = selectedBook.Status || "Wishlist";
@@ -1312,9 +1510,15 @@
 
       statuses.forEach(st => {
         const opt = document.createElement("div");
-        opt.className = "status-picker-option" + (pendingUpdateStatus.toLowerCase().includes(st.toLowerCase()) ? " selected" : "");
+        const isMatch = (st === "Available" && isAvailable(selectedBook)) ||
+                        (st === "Listened" && isCompleted(selectedBook)) ||
+                        (pendingUpdateStatus.toLowerCase().includes(st.toLowerCase()));
+
+        opt.className = "status-picker-option" + (isMatch ? " selected" : "");
         opt.onclick = () => {
-          pendingUpdateStatus = st;
+          pendingUpdateStatus = (st === "Available" && (selectedBook.Platform || "").toLowerCase().includes("audible"))
+            ? "Unread / Owned"
+            : st;
           renderUpdateStatusOptions();
         };
         opt.innerHTML = `
@@ -1439,6 +1643,11 @@
     function escapeHTML(str) {
       if (!str) return '';
       return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
     function showToast(msg) {
