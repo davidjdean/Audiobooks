@@ -525,7 +525,7 @@
       <div class="btn-icon" onclick="openKeyModal()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </div>
     </div>
@@ -719,8 +719,7 @@
       <label class="modal-checkbox-row">
         <input type="checkbox" id="chk-wishlist" value="Wishlist" checked>
         <span style="display:flex; align-items:center; gap:8px;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/>
-          </svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/></svg>
           Wishlist
         </span>
       </label>
@@ -728,7 +727,7 @@
         <input type="checkbox" id="chk-listened" value="Listened" checked>
         <span style="display:flex; align-items:center; gap:8px;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6.5-6.5"/><path d="m13.5 15 1.5 1.5 4.5-4.5"/></svg>
-          Listened / Read
+          Listened / Finished
         </span>
       </label>
 
@@ -840,10 +839,10 @@
       return items;
     }
 
-    // --- ACCURATE STATUS & PLATFORM HELPERS ---
+    // --- ACCURATE STATUS & PLATFORM HELPERS (TAILORED TO SHEET DATA) ---
     function isCompleted(book) {
       const s = (book.Status || "").toLowerCase().trim();
-      return s.includes("listened") || s.includes("read") || s.includes("finished") || s.includes("completed");
+      return s.includes("finished") || s.includes("listened") || s.includes("completed");
     }
 
     function isWishlist(book) {
@@ -858,25 +857,27 @@
     }
 
     function isAvailable(book) {
-      // Completed or wishlist items are never available to start/listen
+      // 1. Finished/loan-ended books or Wishlist items are NEVER available
       if (isCompleted(book) || isWishlist(book)) {
         return false;
       }
 
-      // In Progress books ARE available to listen to
+      // 2. In Progress books ARE always available to listen to
       if (isInProgress(book)) {
         return true;
       }
 
       const s = (book.Status || "").toLowerCase().trim();
-      // Matches "Unread / Owned", "Unread", "Owned", "Available", "Reserved", "On Loan", "Borrowed"
+
+      // 3. Exact matches for Audible and BorrowBox available states
       return (
         s.includes("unread") ||
         s.includes("owned") ||
         s.includes("available") ||
-        s.includes("reserved") ||
         s.includes("on loan") ||
-        s.includes("borrowed")
+        s.includes("hold") ||
+        s.includes("reserve") ||
+        s.includes("borrow")
       );
     }
 
@@ -1078,8 +1079,8 @@
         const isAvail = isAvailable(book);
 
         const matches = (
-          (selectedStatuses.includes("In Progress") && isProg) ||
           (selectedStatuses.includes("Available") && isAvail) ||
+          (selectedStatuses.includes("In Progress") && isProg) ||
           (selectedStatuses.includes("Wishlist") && isWish) ||
           (selectedStatuses.includes("Listened") && isListened)
         );
@@ -1178,7 +1179,7 @@
       });
     }
 
-    // --- SERIES TAB LOGIC ---
+    // --- SERIES TAB LOGIC (SYNCHRONIZED COUNTS) ---
     function clearSeriesSearch() {
       document.getElementById("search-series").value = "";
       document.getElementById("clear-series-search").style.display = "none";
@@ -1256,7 +1257,7 @@
       });
     }
 
-    // --- SERIES1 VIEW ---
+    // --- SERIES1 VIEW (SYNCHRONIZED COUNTS) ---
     function openSeries1View(type, name) {
       pushView("view-series1", name);
       const container = document.getElementById("series1-container");
@@ -1498,7 +1499,7 @@
       return data.candidates[0].content.parts[0].text;
     }
 
-    // --- UPDATE VIEW & WRITE-BACK ---
+    // --- UPDATE VIEW & WRITE-BACK (ACCURATE PLATFORM TARGETING) ---
     function openUpdateScreen() {
       pushView("view-update", "Update " + selectedBook.Title);
       pendingUpdateStatus = selectedBook.Status || "Wishlist";
@@ -1530,23 +1531,33 @@
       const container = document.getElementById("update-status-options");
       container.innerHTML = "";
 
-      statuses.forEach(st => {
-        const opt = document.createElement("div");
-        const isMatch = (st === "Available" && isAvailable(selectedBook)) ||
-                        (st === "Listened" && isCompleted(selectedBook)) ||
-                        (st === "Wishlist" && isWishlist(selectedBook)) ||
-                        (st === "In Progress" && isInProgress(selectedBook)) ||
-                        (pendingUpdateStatus.toLowerCase().includes(st.toLowerCase()));
+      const p = (selectedBook.Platform || "").toLowerCase();
+      const isBorrowBox = p.includes("borrowbox");
 
-        opt.className = "status-picker-option" + (isMatch ? " selected" : "");
+      statuses.forEach(st => {
+        let isSelected = false;
+        if (st === "Available") isSelected = isAvailable(selectedBook) && !isInProgress(selectedBook);
+        else if (st === "In Progress") isSelected = isInProgress(selectedBook);
+        else if (st === "Listened") isSelected = isCompleted(selectedBook);
+        else if (st === "Wishlist") isSelected = isWishlist(selectedBook);
+
+        const opt = document.createElement("div");
+        opt.className = "status-picker-option" + (isSelected ? " selected" : "");
         opt.onclick = () => {
-          pendingUpdateStatus = (st === "Available" && (selectedBook.Platform || "").toLowerCase().includes("audible"))
-            ? "Unread / Owned"
-            : st;
+          if (st === "Available") {
+            pendingUpdateStatus = isBorrowBox ? "Available to Borrow" : "Unread / Owned";
+          } else if (st === "Listened") {
+            pendingUpdateStatus = isBorrowBox ? "Finished / Loan Ended" : "Finished";
+          } else if (st === "In Progress") {
+            pendingUpdateStatus = "In Progress";
+          } else if (st === "Wishlist") {
+            pendingUpdateStatus = "Wishlist";
+          }
+          selectedBook.Status = pendingUpdateStatus;
           renderUpdateStatusOptions();
         };
         opt.innerHTML = `
-          <span>${renderStatusIcon({ Status: st, Platform: selectedBook.Platform })}</span>
+          <span>${renderStatusIcon({ Status: st === "Available" ? (isBorrowBox ? "Available to Borrow" : "Unread / Owned") : (st === "Listened" ? (isBorrowBox ? "Finished / Loan Ended" : "Finished") : st), Platform: selectedBook.Platform })}</span>
           <span style="font-weight:600; font-size:0.9rem;">${st}</span>
         `;
         container.appendChild(opt);
@@ -1636,7 +1647,7 @@
       }
       if (isCompleted(book)) {
         return `
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Listened">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Finished">
             <circle cx="12" cy="12" r="9"/>
             <path d="m7.5 12 3 3 6.5-6.5"/>
             <path d="m13.5 15 1.5 1.5 4.5-4.5"/>
