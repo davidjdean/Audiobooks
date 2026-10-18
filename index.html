@@ -550,8 +550,8 @@
         <div class="filter-row">
           <div class="segmented-pill">
             <button class="pill-btn active" onclick="setPlatformFilter('all')">All</button>
-            <button class="pill-btn" onclick="setPlatformFilter('Audible')">Audible</button>
-            <button class="pill-btn" onclick="setPlatformFilter('BorrowBox')">BorrowBox</button>
+            <button class="pill-btn" onclick="setPlatformFilter('audible')">Audible</button>
+            <button class="pill-btn" onclick="setPlatformFilter('borrowbox')">BorrowBox</button>
           </div>
 
           <button class="filter-btn" onclick="openStatusModal()">
@@ -719,7 +719,8 @@
       <label class="modal-checkbox-row">
         <input type="checkbox" id="chk-wishlist" value="Wishlist" checked>
         <span style="display:flex; align-items:center; gap:8px;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><polygon points="12 7 13.2 9.5 16 9.8 14 11.7 14.5 14.5 12 13.2 9.5 14.5 10 11.7 8 9.8 10.8 9.5 12 7" fill="#a855f7"/>
+          </svg>
           Wishlist
         </span>
       </label>
@@ -839,30 +840,52 @@
       return items;
     }
 
-    // --- STATUS HELPERS ---
+    // --- ACCURATE STATUS & PLATFORM HELPERS ---
     function isCompleted(book) {
       const s = (book.Status || "").toLowerCase().trim();
       return s.includes("listened") || s.includes("read") || s.includes("finished") || s.includes("completed");
     }
 
-    function isAvailable(book) {
-      if (isCompleted(book)) return false;
+    function isWishlist(book) {
       const s = (book.Status || "").toLowerCase().trim();
       const p = (book.Platform || "").toLowerCase().trim();
+      return s.includes("wishlist") || s.includes("wish list") || p.includes("wishlist") || p.includes("wish list");
+    }
 
-      if (s.includes("in progress") || s.includes("wishlist")) return false;
+    function isInProgress(book) {
+      const s = (book.Status || "").toLowerCase().trim();
+      return s.includes("in progress");
+    }
 
-      // Audible availability
-      if (p.includes("audible")) {
-        return s.includes("unread") || s.includes("owned") || s.includes("available") || s === "unread / owned";
+    function isAvailable(book) {
+      // Completed or wishlist items are never available to start/listen
+      if (isCompleted(book) || isWishlist(book)) {
+        return false;
       }
 
-      // BorrowBox availability
-      if (p.includes("borrowbox")) {
-        return s.includes("reserved") || s.includes("on loan") || s.includes("available");
+      // In Progress books ARE available to listen to
+      if (isInProgress(book)) {
+        return true;
       }
 
-      return s.includes("unread") || s.includes("available") || s.includes("owned");
+      const s = (book.Status || "").toLowerCase().trim();
+      // Matches "Unread / Owned", "Unread", "Owned", "Available", "Reserved", "On Loan", "Borrowed"
+      return (
+        s.includes("unread") ||
+        s.includes("owned") ||
+        s.includes("available") ||
+        s.includes("reserved") ||
+        s.includes("on loan") ||
+        s.includes("borrowed")
+      );
+    }
+
+    function matchesPlatform(book, platformKey) {
+      if (platformKey === "all") return true;
+      const p = (book.Platform || "").toLowerCase().trim();
+      if (platformKey === "audible") return p.includes("audible");
+      if (platformKey === "borrowbox") return p.includes("borrowbox");
+      return true;
     }
 
     // --- SPEECH SYNTHESIS (TTS) ---
@@ -1034,25 +1057,24 @@
       const sortBy = document.getElementById("sort-select").value;
 
       let items = list.filter(book => {
-        // Text search across Title and Full_Title
+        // 1. Text search across Title and Full_Title
         if (search) {
           const t = (book.Title || "").toLowerCase();
           const ft = (book.Full_Title || "").toLowerCase();
           if (!t.includes(search) && !ft.includes(search)) return false;
         }
 
-        // Platform filter
-        if (selectedPlatform !== "all" && !book.Platform.toLowerCase().includes(selectedPlatform.toLowerCase())) {
+        // 2. Platform filter
+        if (!matchesPlatform(book, selectedPlatform)) {
           return false;
         }
 
-        // Allow drill-down views to bypass global status modal
+        // 3. Status filter (bypassed when drilling down to a series/author)
         if (bypassStatusFilter) return true;
 
-        const s = (book.Status || "").toLowerCase();
-        const isProg = s.includes("in progress");
+        const isProg = isInProgress(book);
         const isListened = isCompleted(book);
-        const isWish = s.includes("wishlist");
+        const isWish = isWishlist(book);
         const isAvail = isAvailable(book);
 
         const matches = (
@@ -1512,6 +1534,8 @@
         const opt = document.createElement("div");
         const isMatch = (st === "Available" && isAvailable(selectedBook)) ||
                         (st === "Listened" && isCompleted(selectedBook)) ||
+                        (st === "Wishlist" && isWishlist(selectedBook)) ||
+                        (st === "In Progress" && isInProgress(selectedBook)) ||
                         (pendingUpdateStatus.toLowerCase().includes(st.toLowerCase()));
 
         opt.className = "status-picker-option" + (isMatch ? " selected" : "");
@@ -1602,8 +1626,7 @@
     }
 
     function renderStatusIcon(book) {
-      const s = (book.Status || '').toLowerCase();
-      if (s.includes('in progress')) {
+      if (isInProgress(book)) {
         return `
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="In Progress">
             <path d="M12 2a10 10 0 1 1-10 10"/>
@@ -1628,7 +1651,7 @@
           </svg>
         `;
       }
-      if (s.includes('wishlist')) {
+      if (isWishlist(book)) {
         return `
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Wishlist">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
