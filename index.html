@@ -116,7 +116,7 @@
       margin: 0 auto;
     }
 
-    /* Search & Filters Controls */
+    /* Controls */
     .controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -210,7 +210,7 @@
       outline: none;
     }
 
-    /* Cards & Lists */
+    /* Cards */
     .item-list {
       display: flex;
       flex-direction: column;
@@ -294,7 +294,7 @@
       gap: 10px;
     }
 
-    /* Modal / Bottom Sheet */
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -373,7 +373,7 @@
       color: var(--text-main);
     }
 
-    /* Summary & Detail View */
+    /* Views */
     .view-screen {
       display: none;
     }
@@ -442,7 +442,6 @@
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Interactive Stars for Update Screen */
     .rating-picker {
       display: flex;
       gap: 12px;
@@ -476,10 +475,8 @@
 </head>
 <body>
 
-  <!-- Floating Toast -->
   <div id="toast" class="toast"></div>
 
-  <!-- Header -->
   <header>
     <div class="header-top">
       <div id="btn-back" class="btn-icon" style="display:none;" onclick="navigateBack()">
@@ -498,7 +495,6 @@
       </div>
     </div>
 
-    <!-- Pinned Top Segmented Tab Navigation -->
     <nav class="nav-tabs" id="main-nav-tabs">
       <button class="nav-tab active" onclick="switchMainTab('titles')">Title</button>
       <button class="nav-tab" onclick="switchMainTab('authors')">Author</button>
@@ -527,7 +523,7 @@
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
-            <span id="status-filter-label">Status</span>
+            <span id="status-filter-label">Status: All</span>
           </button>
 
           <select class="sort-select" id="sort-select" onchange="renderTitleList()">
@@ -575,7 +571,7 @@
       <div id="narrators-container" class="item-list"></div>
     </div>
 
-    <!-- View: SERIES1 (Filtered for single Author or Narrator) -->
+    <!-- View: SERIES1 -->
     <div id="view-series1" class="view-screen">
       <div style="margin-bottom: 12px;">
         <button class="btn btn-secondary" style="width: 100%;" id="btn-series1-all">Show All Titles</button>
@@ -678,7 +674,7 @@
         <input type="checkbox" id="chk-listened" value="Listened" checked>
         <span style="display:flex; align-items:center; gap:8px;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6.5-6.5"/><path d="m13.5 15 1.5 1.5 4.5-4.5"/></svg>
-          Listened
+          Listened / Read
         </span>
       </label>
 
@@ -698,7 +694,7 @@
         <button class="btn-icon" onclick="closeKeyModal()">✕</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
-        To generate book summaries and "Story So Far" recaps, provide your Google Gemini API key. It is saved only in this browser's private local storage.
+        To generate book summaries and "Story So Far" recaps, provide your Google Gemini API key. It is saved in your browser's private local storage.
       </p>
       <input type="password" id="input-gemini-key" class="search-input" placeholder="AIzaSy..." style="margin-bottom:14px;">
       <div class="modal-actions">
@@ -742,7 +738,7 @@
       }
     }
 
-    // CSV Parser supporting quotes and multi-line fields
+    // CSV Parser supporting quotes, multi-line values, and empty intermediate rows
     function parseCSV(text) {
       const rows = [];
       let row = [""];
@@ -778,15 +774,35 @@
           item[h] = (cells[idx] || '').trim().replace(/^"|"$/g, '');
         });
 
-        // Filter out blank rows
-        if (!item.Title || !item.Title.trim()) return items;
+        // Skip blank rows without aborting the entire dataset
+        if (!item.Title || !item.Title.trim()) {
+          continue;
+        }
 
-        // Normalize Fields
         item.Rating = parseInt(item.Rating, 10) || 0;
         item.Series_Number = item.Series_Number || item.Book_Number || "";
         items.push(item);
       }
       return items;
+    }
+
+    // Status Helper
+    function isCompleted(book) {
+      const s = (book.Status || "").toLowerCase().trim();
+      return s.includes("listened") || s.includes("read") || s.includes("finished") || s.includes("completed");
+    }
+
+    function isAvailable(book) {
+      const s = (book.Status || "").toLowerCase().trim();
+      const p = (book.Platform || "").toLowerCase().trim();
+      if (isCompleted(book)) return false;
+      if (p.includes("audible")) {
+        return s.includes("owned") || s.includes("available") || s === "unread / owned";
+      }
+      if (p.includes("borrowbox")) {
+        return s.includes("reserved") || s.includes("on loan") || s.includes("available");
+      }
+      return s.includes("available");
     }
 
     // --- NAVIGATION CONTROLLER ---
@@ -886,38 +902,32 @@
       renderTitleList();
     }
 
-    function isAvailable(book) {
-      const s = (book.Status || "").toLowerCase();
-      const p = (book.Platform || "").toLowerCase();
-      if (p.includes("audible")) {
-        return s.includes("owned") || s.includes("available") || s === "unread / owned";
-      }
-      if (p.includes("borrowbox")) {
-        return s.includes("reserved") || s.includes("on loan") || s.includes("available");
-      }
-      return s.includes("available");
-    }
-
-    function renderTitleList(filteredSubset, contextTitle) {
+    function renderTitleList(filteredSubset, bypassStatusFilter) {
       const container = document.getElementById("titles-container");
       const list = filteredSubset || libraryData;
-      const search = (document.getElementById("search-title").value || "").toLowerCase();
+      const search = (document.getElementById("search-title").value || "").toLowerCase().trim();
       const sortBy = document.getElementById("sort-select").value;
 
       let items = list.filter(book => {
-        // Text search
-        if (search && !book.Title.toLowerCase().includes(search)) return false;
+        // Search across Title and Full_Title
+        if (search) {
+          const t = (book.Title || "").toLowerCase();
+          const ft = (book.Full_Title || "").toLowerCase();
+          if (!t.includes(search) && !ft.includes(search)) return false;
+        }
 
         // Platform filter
         if (selectedPlatform !== "all" && !book.Platform.toLowerCase().includes(selectedPlatform.toLowerCase())) {
           return false;
         }
 
-        // Status multi-select logic
-        const s = book.Status || "";
-        const isProg = s.toLowerCase().includes("in progress");
-        const isListened = s.toLowerCase().includes("listened");
-        const isWish = s.toLowerCase().includes("wishlist");
+        // Bypass status filter when clicking through series
+        if (bypassStatusFilter) return true;
+
+        const s = (book.Status || "").toLowerCase();
+        const isProg = s.includes("in progress");
+        const isListened = isCompleted(book);
+        const isWish = s.includes("wishlist");
         const isAvail = isAvailable(book);
 
         const matches = (
@@ -981,7 +991,7 @@
 
     function renderAuthorList(searchVal) {
       const container = document.getElementById("authors-container");
-      const search = (searchVal || document.getElementById("search-author").value || "").toLowerCase();
+      const search = (searchVal || document.getElementById("search-author").value || "").toLowerCase().trim();
       document.getElementById("clear-author-search").style.display = search ? "block" : "none";
 
       const authors = [...new Set(libraryData.map(b => b.Author).filter(Boolean))].sort((a,b) => a.localeCompare(b));
@@ -1010,7 +1020,7 @@
 
     function renderSeriesList(searchVal) {
       const container = document.getElementById("series-container");
-      const search = (searchVal || document.getElementById("search-series").value || "").toLowerCase();
+      const search = (searchVal || document.getElementById("search-series").value || "").toLowerCase().trim();
       document.getElementById("clear-series-search").style.display = search ? "block" : "none";
 
       const seriesMap = new Map();
@@ -1027,7 +1037,7 @@
       container.innerHTML = "";
       filtered.forEach(sName => {
         const books = seriesMap.get(sName);
-        const completed = books.filter(b => (b.Status || '').toLowerCase().includes('listened')).length;
+        const completed = books.filter(b => isCompleted(b)).length;
         const unread = books.filter(b => isAvailable(b)).length;
 
         const row = document.createElement("div");
@@ -1053,7 +1063,7 @@
 
     function renderNarratorList(searchVal) {
       const container = document.getElementById("narrators-container");
-      const search = (searchVal || document.getElementById("search-narrator").value || "").toLowerCase();
+      const search = (searchVal || document.getElementById("search-narrator").value || "").toLowerCase().trim();
       document.getElementById("clear-narrator-search").style.display = search ? "block" : "none";
 
       const narrators = [...new Set(libraryData.map(b => b.Narrator).filter(Boolean))].sort((a,b) => a.localeCompare(b));
@@ -1073,7 +1083,7 @@
       });
     }
 
-    // --- SERIES1 VIEW (Author or Narrator Drill-down) ---
+    // --- SERIES1 VIEW ---
     function openSeries1View(type, name) {
       pushView("view-series1", name);
       const container = document.getElementById("series1-container");
@@ -1085,7 +1095,7 @@
       allBtn.textContent = `Show All ${books.length} Titles by ${name}`;
       allBtn.onclick = () => {
         pushView("view-titles", `${name} - All Titles`);
-        renderTitleList(books);
+        renderTitleList(books, true);
       };
 
       const seriesMap = new Map();
@@ -1102,7 +1112,7 @@
       });
 
       seriesMap.forEach((sBooks, sName) => {
-        const completed = sBooks.filter(b => (b.Status || '').toLowerCase().includes('listened')).length;
+        const completed = sBooks.filter(b => isCompleted(b)).length;
         const unread = sBooks.filter(b => isAvailable(b)).length;
         const row = document.createElement("div");
         row.className = "drilldown-item";
@@ -1122,7 +1132,7 @@
         row.className = "drilldown-item";
         row.onclick = () => {
           pushView("view-titles", "Standalone Titles");
-          renderTitleList(standalones);
+          renderTitleList(standalones, true);
         };
         row.innerHTML = `
           <span class="drilldown-title">Standalone Titles</span>
@@ -1137,10 +1147,10 @@
     function openSeriesTitles(seriesName, books) {
       pushView("view-titles", seriesName);
       const sorted = [...books].sort((a,b) => parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0));
-      renderTitleList(sorted);
+      renderTitleList(sorted, true);
     }
 
-    // --- SUMMARY VIEW & AI INTEGRATION ---
+    // --- SUMMARY & AI INTEGRATION ---
     function openSummaryView(book) {
       selectedBook = book;
       pushView("view-summary", book.Title);
@@ -1165,7 +1175,6 @@
         </div>
       `;
 
-      // Hide "Story So Far" for Book 1 or standalones
       const storyBtn = document.getElementById("btn-story-so-far");
       const num = parseFloat(book.Series_Number);
       if (!book.Series || !book.Series.trim() || isNaN(num) || num <= 1) {
@@ -1252,7 +1261,8 @@
     }
 
     async function callGeminiAPI(apiKey, prompt) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      // Updated to current gemini-3.8-flash model
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1268,7 +1278,7 @@
       return data.candidates[0].content.parts[0].text;
     }
 
-    // --- UPDATE VIEW & GOOGLE APPS SCRIPT WRITE-BACK ---
+    // --- UPDATE SCREEN & WRITE-BACK ---
     function openUpdateScreen() {
       pushView("view-update", "Update " + selectedBook.Title);
       pendingUpdateStatus = selectedBook.Status || "Wishlist";
@@ -1319,12 +1329,10 @@
       const book = selectedBook;
       showToast("Saving changes...");
 
-      // Optimistic local update
       book.Rating = pendingUpdateRating;
       book.Status = pendingUpdateStatus;
       renderTitleList();
 
-      // Write-back to Google Sheet via Apps Script
       try {
         const payload = {
           title: book.Title,
@@ -1341,8 +1349,8 @@
         const result = await res.json();
         if (result.status === "success") {
           showToast("Changes saved to Google Sheet!");
-          navigateBack(); // Back to Summary
-          openSummaryView(book); // Refresh summary header
+          navigateBack();
+          openSummaryView(book);
         } else {
           showToast("Sheet update warning: " + result.message);
         }
@@ -1352,7 +1360,7 @@
       }
     }
 
-    // --- ICON & STAR RENDERING SUITE ---
+    // --- ICONS ---
     function renderRatingStars(rating) {
       if (!rating || rating === 0) return '';
       let stars = '<div class="stars-row">';
@@ -1399,7 +1407,7 @@
           </svg>
         `;
       }
-      if (s.includes('listened')) {
+      if (isCompleted(book)) {
         return `
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Listened">
             <circle cx="12" cy="12" r="9"/>
