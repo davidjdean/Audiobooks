@@ -897,18 +897,20 @@
       }
     }
 
-    function parseCSV(text) {
+   function parseCSV(text) {
       if (!text || !text.trim()) return [];
 
       const rows = [];
       let row = [""];
       let inQuotes = false;
+
       for (let i = 0; i < text.length; i++) {
         const c = text[i];
         const next = text[i + 1];
+
         if (c === '"' && inQuotes && next === '"') {
           row[row.length - 1] += '"';
-          i++;
+          i++; // skip escaped quote
         } else if (c === '"') {
           inQuotes = !inQuotes;
         } else if (c === ',' && !inQuotes) {
@@ -934,15 +936,17 @@
           item[h] = (cells[idx] || '').trim().replace(/^"|"$/g, '');
         });
 
+        // Skip genuinely empty rows
         if (!item.Title || !item.Title.trim()) continue;
 
         item.Rating = parseInt(item.Rating, 10) || 0;
         item.Series_Number = item.Series_Number || item.Book_Number || "";
         items.push(item);
       }
+
       return items;
     }
-
+    
     // --- STATUS & PLATFORM HELPERS ---
     function isCompleted(book) {
       const s = (book.Status || "").toLowerCase().trim();
