@@ -283,6 +283,22 @@
       gap: 8px;
     }
 
+    .badge-book-seq {
+      background-color: #334155;
+      color: #f1f5f9;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .badge-book-seq.missing {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border-color: #ef4444;
+    }
+
     .drilldown-item {
       display: flex;
       align-items: center;
@@ -301,7 +317,7 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     /* Modal */
@@ -373,6 +389,10 @@
       border: none;
       cursor: pointer;
       text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     .btn-primary {
       background-color: var(--accent-blue);
@@ -381,6 +401,10 @@
     .btn-secondary {
       background-color: var(--bg-hover);
       color: var(--text-main);
+    }
+    .btn-accent {
+      background-color: #8b5cf6;
+      color: #ffffff;
     }
 
     /* Views */
@@ -506,6 +530,48 @@
       border-color: var(--accent-blue);
       background-color: rgba(59, 130, 246, 0.1);
     }
+
+    .platform-toggle-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .platform-toggle-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .platform-toggle-btn.active-audible {
+      border-color: var(--accent-audible);
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+    }
+    .platform-toggle-btn.active-borrowbox {
+      border-color: var(--accent-borrowbox);
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+    }
+
+    .series-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
   </style>
 </head>
 <body>
@@ -525,7 +591,7 @@
       <div class="btn-icon" onclick="openKeyModal()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </div>
     </div>
@@ -541,6 +607,16 @@
   <main>
     <!-- View: TITLE TAB -->
     <div id="view-titles" class="view-screen active">
+      <div id="series-header-banner" style="display:none;" class="series-action-bar">
+        <div>
+          <div id="series-banner-title" style="font-weight:700; font-size:1.05rem;"></div>
+          <div id="series-banner-count" style="font-size:0.8rem; color:var(--text-muted);"></div>
+        </div>
+        <button class="btn btn-secondary" style="font-size:0.8rem; padding:6px 10px;" onclick="openSeriesAIAssistant()">
+          ✨ Update Series
+        </button>
+      </div>
+
       <div class="controls-wrapper">
         <div class="search-box">
           <input type="text" id="search-title" class="search-input" placeholder="Search titles..." oninput="handleTitleSearch(this.value)">
@@ -675,6 +751,20 @@
       <div class="detail-header" id="update-header"></div>
 
       <div class="detail-section">
+        <div class="section-title">Platforms (Tap to Toggle)</div>
+        <div class="platform-toggle-row">
+          <div class="platform-toggle-btn" id="btn-toggle-audible" onclick="togglePlatformChoice('Audible')">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Audible</span>
+          </div>
+          <div class="platform-toggle-btn" id="btn-toggle-borrowbox" onclick="togglePlatformChoice('BorrowBox')">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-8 4.5v9L12 21l8-4.5v-9L12 3z"/><path d="M12 12 4 7.5"/></svg>
+            <span>BorrowBox</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
         <div class="section-title">Rating</div>
         <div class="rating-picker" id="update-rating-stars">
           <span onclick="setUpdateRating(1)">★</span>
@@ -692,6 +782,23 @@
       </div>
 
       <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="submitBookUpdate()">Save Changes</button>
+    </div>
+
+    <!-- View: SERIES AI ASSISTANT -->
+    <div id="view-series-ai" class="view-screen">
+      <div class="detail-header" id="series-ai-header"></div>
+      <div class="detail-section">
+        <div class="section-title">
+          <span>AI Sequence & Gap Analysis</span>
+          <button class="btn-tts" id="btn-tts-series-ai" style="display:none;" onclick="toggleSpeech('series-ai-content', this)">
+            <span>Listen</span>
+          </button>
+        </div>
+        <div id="series-ai-content" class="ai-content"></div>
+      </div>
+      <div id="series-ai-save-box" style="display:none; margin-top:12px;">
+        <button class="btn btn-primary" style="width:100%;" onclick="applyAIFixedNumbers()">Save Sequence Numbers to Google Sheet</button>
+      </div>
     </div>
   </main>
 
@@ -747,7 +854,7 @@
         <button class="btn-icon" onclick="closeKeyModal()">✕</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
-        To generate book summaries and "Story So Far" recaps, provide your Google Gemini API key. It is saved in your browser's private local storage.
+        To generate summaries, story recaps, and series updates, provide your Google Gemini API key.
       </p>
       <input type="password" id="input-gemini-key" class="search-input" placeholder="AIzaSy..." style="margin-bottom:14px;">
       <div class="modal-actions">
@@ -764,6 +871,8 @@
 
     // Global App State
     let libraryData = [];
+    let currentTitleSubset = null; // PERSISTS SUBSET ACROSS SORTS
+    let currentSeriesContext = null;
     let activeMainTab = "titles";
     let selectedPlatform = "all";
     let selectedStatuses = ["In Progress", "Available", "Wishlist", "Listened"];
@@ -771,6 +880,8 @@
     let navHistory = [];
     let pendingUpdateStatus = "";
     let pendingUpdateRating = 0;
+    let pendingPlatforms = { audible: false, borrowbox: false };
+    let aiProposedNumbers = [];
     let activeUtterance = null;
 
     // --- INITIALIZATION ---
@@ -839,7 +950,7 @@
       return items;
     }
 
-    // --- ACCURATE STATUS & PLATFORM HELPERS (TAILORED TO SHEET DATA) ---
+    // --- STATUS & PLATFORM HELPERS ---
     function isCompleted(book) {
       const s = (book.Status || "").toLowerCase().trim();
       return s.includes("finished") || s.includes("listened") || s.includes("completed");
@@ -857,19 +968,13 @@
     }
 
     function isAvailable(book) {
-      // 1. Finished/loan-ended books or Wishlist items are NEVER available
       if (isCompleted(book) || isWishlist(book)) {
         return false;
       }
-
-      // 2. In Progress books ARE always available to listen to
       if (isInProgress(book)) {
         return true;
       }
-
       const s = (book.Status || "").toLowerCase().trim();
-
-      // 3. Exact matches for Audible and BorrowBox available states
       return (
         s.includes("unread") ||
         s.includes("owned") ||
@@ -954,6 +1059,9 @@
       stopSpeech();
       activeMainTab = tab;
       navHistory = [];
+      currentTitleSubset = null;
+      currentSeriesContext = null;
+      document.getElementById("series-header-banner").style.display = "none";
       resetAllSearches();
 
       document.getElementById("btn-back").style.display = "none";
@@ -971,7 +1079,9 @@
       stopSpeech();
       navHistory.push({
         screenId: getCurrentActiveScreenId(),
-        title: document.getElementById("page-title").textContent
+        title: document.getElementById("page-title").textContent,
+        subset: currentTitleSubset,
+        seriesContext: currentSeriesContext
       });
       document.getElementById("btn-back").style.display = "flex";
       document.getElementById("main-nav-tabs").style.display = "none";
@@ -983,6 +1093,15 @@
       stopSpeech();
       if (navHistory.length > 0) {
         const prev = navHistory.pop();
+        currentTitleSubset = prev.subset;
+        currentSeriesContext = prev.seriesContext;
+
+        if (currentSeriesContext) {
+          document.getElementById("series-header-banner").style.display = "flex";
+        } else {
+          document.getElementById("series-header-banner").style.display = "none";
+        }
+
         showScreen(prev.screenId);
         document.getElementById("page-title").textContent = prev.title;
         if (navHistory.length === 0) {
@@ -1004,7 +1123,11 @@
     }
 
     function renderCurrentTab() {
-      if (activeMainTab === "titles") renderTitleList();
+      if (activeMainTab === "titles") {
+        currentTitleSubset = null;
+        document.getElementById("series-header-banner").style.display = "none";
+        renderTitleList();
+      }
       else if (activeMainTab === "authors") renderAuthorList();
       else if (activeMainTab === "series") renderSeriesList();
       else if (activeMainTab === "narrators") renderNarratorList();
@@ -1051,14 +1174,19 @@
       renderTitleList();
     }
 
-    function renderTitleList(filteredSubset, bypassStatusFilter) {
+    // Renders the titles list using currentTitleSubset to avoid resetting to all books on sort
+    function renderTitleList(newSubset, bypassStatusFilter) {
+      if (newSubset !== undefined) {
+        currentTitleSubset = newSubset;
+      }
+
       const container = document.getElementById("titles-container");
-      const list = filteredSubset || libraryData;
+      const list = currentTitleSubset || libraryData;
       const search = (document.getElementById("search-title").value || "").toLowerCase().trim();
       const sortBy = document.getElementById("sort-select").value;
 
       let items = list.filter(book => {
-        // 1. Text search across Title and Full_Title
+        // 1. Text search
         if (search) {
           const t = (book.Title || "").toLowerCase();
           const ft = (book.Full_Title || "").toLowerCase();
@@ -1070,7 +1198,7 @@
           return false;
         }
 
-        // 3. Status filter (bypassed when drilling down to a series/author)
+        // 3. Status filter (bypassable during specific drill-downs)
         if (bypassStatusFilter) return true;
 
         const isProg = isInProgress(book);
@@ -1095,7 +1223,9 @@
         if (sortBy === "series-seq") {
           const sComp = (a.Series || "").localeCompare(b.Series || "");
           if (sComp !== 0) return sComp;
-          return parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0);
+          const numA = parseFloat(a.Series_Number || 9999);
+          const numB = parseFloat(b.Series_Number || 9999);
+          return numA - numB;
         }
         return 0;
       });
@@ -1113,12 +1243,25 @@
 
         const durationStr = book.Duration ? book.Duration : "Unknown duration";
         const hasSeries = book.Series && book.Series.trim() !== "";
+
+        let seqBadge = "";
+        if (hasSeries) {
+          if (book.Series_Number && book.Series_Number.trim() !== "") {
+            seqBadge = `<span class="badge-book-seq">Book ${escapeHTML(book.Series_Number)}</span>`;
+          } else {
+            seqBadge = `<span class="badge-book-seq missing">Book ?</span>`;
+          }
+        }
+
         const seriesDisplay = hasSeries
-          ? `<span class="meta-link" onclick="event.stopPropagation(); drillDownSeries('${escapeQuotes(book.Series)}')">${escapeHTML(book.Series)}</span>${book.Series_Number ? " #" + escapeHTML(book.Series_Number) : ""}`
+          ? `<span class="meta-link" onclick="event.stopPropagation(); drillDownSeries('${escapeQuotes(book.Series)}')">${escapeHTML(book.Series)}</span>`
           : "Standalone";
 
         card.innerHTML = `
-          <div class="book-card-title">${escapeHTML(book.Title)}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div class="book-card-title">${escapeHTML(book.Title)}</div>
+            ${seqBadge}
+          </div>
           <div class="book-card-meta">
             By <span class="meta-link" onclick="event.stopPropagation(); drillDownAuthor('${escapeQuotes(book.Author)}')">${escapeHTML(book.Author)}</span> • ${seriesDisplay}
           </div>
@@ -1135,7 +1278,7 @@
       });
     }
 
-    // Direct card click-through navigations
+    // Direct card click navigations
     function drillDownAuthor(authorName) {
       clearTitleSearch();
       openSeries1View('author', authorName);
@@ -1179,7 +1322,7 @@
       });
     }
 
-    // --- SERIES TAB LOGIC (SYNCHRONIZED COUNTS) ---
+    // --- SERIES TAB LOGIC (READ & UNREAD COUNTS) ---
     function clearSeriesSearch() {
       document.getElementById("search-series").value = "";
       document.getElementById("clear-series-search").style.display = "none";
@@ -1206,7 +1349,8 @@
       filtered.forEach(sName => {
         const books = seriesMap.get(sName);
         const completed = books.filter(b => isCompleted(b)).length;
-        const unread = books.filter(b => isAvailable(b)).length;
+        // Unread = Total minus Completed (includes In Progress, Wishlist, and Available)
+        const unread = books.length - completed;
 
         const row = document.createElement("div");
         row.className = "drilldown-item";
@@ -1218,7 +1362,7 @@
           <span class="drilldown-title">${escapeHTML(sName)}</span>
           <div class="drilldown-counts">
             <span style="color:var(--text-muted);">Read: ${completed}</span>
-            <span style="color:var(--accent-available);">Available: ${unread}</span>
+            <span style="color:var(--accent-available); font-weight:600;">Unread: ${unread}</span>
           </div>
         `;
         container.appendChild(row);
@@ -1257,7 +1401,7 @@
       });
     }
 
-    // --- SERIES1 VIEW (SYNCHRONIZED COUNTS) ---
+    // --- SERIES1 VIEW ---
     function openSeries1View(type, name) {
       pushView("view-series1", name);
       const container = document.getElementById("series1-container");
@@ -1269,6 +1413,8 @@
       allBtn.textContent = `Show All ${books.length} Titles by ${name}`;
       allBtn.onclick = () => {
         clearTitleSearch();
+        document.getElementById("series-header-banner").style.display = "none";
+        currentSeriesContext = null;
         pushView("view-titles", `${name} - All Titles`);
         renderTitleList(books, true);
       };
@@ -1288,7 +1434,7 @@
 
       seriesMap.forEach((sBooks, sName) => {
         const completed = sBooks.filter(b => isCompleted(b)).length;
-        const unread = sBooks.filter(b => isAvailable(b)).length;
+        const unread = sBooks.length - completed;
         const row = document.createElement("div");
         row.className = "drilldown-item";
         row.onclick = () => {
@@ -1299,7 +1445,7 @@
           <span class="drilldown-title">${escapeHTML(sName)}</span>
           <div class="drilldown-counts">
             <span style="color:var(--text-muted);">Read: ${completed}</span>
-            <span style="color:var(--accent-available);">Available: ${unread}</span>
+            <span style="color:var(--accent-available); font-weight:600;">Unread: ${unread}</span>
           </div>
         `;
         container.appendChild(row);
@@ -1310,6 +1456,8 @@
         row.className = "drilldown-item";
         row.onclick = () => {
           clearTitleSearch();
+          document.getElementById("series-header-banner").style.display = "none";
+          currentSeriesContext = null;
           pushView("view-titles", "Standalone Titles");
           renderTitleList(standalones, true);
         };
@@ -1323,11 +1471,18 @@
       }
     }
 
+    // Series Titles Drill-down: defaults to Series Sequence sort and shows AI Update Series button
     function openSeriesTitles(seriesName, books) {
       clearTitleSearch();
+      currentSeriesContext = { name: seriesName, books: books };
+      document.getElementById("sort-select").value = "series-seq";
+
+      document.getElementById("series-banner-title").textContent = seriesName;
+      document.getElementById("series-banner-count").textContent = `${books.length} title${books.length > 1 ? 's' : ''} in library`;
+      document.getElementById("series-header-banner").style.display = "flex";
+
       pushView("view-titles", seriesName);
-      const sorted = [...books].sort((a,b) => parseFloat(a.Series_Number || 0) - parseFloat(b.Series_Number || 0));
-      renderTitleList(sorted, true);
+      renderTitleList(books, true);
     }
 
     // --- SUMMARY VIEW ---
@@ -1355,7 +1510,6 @@
         </div>
       `;
 
-      // Hide or show "Story So Far" button for Book 1 or standalones
       const storyBtn = document.getElementById("btn-story-so-far");
       const num = parseFloat(book.Series_Number);
       if (!book.Series || !book.Series.trim() || isNaN(num) || num <= 1) {
@@ -1364,7 +1518,6 @@
         storyBtn.style.display = "block";
       }
 
-      // Check cache for existing summary
       const cacheKey = "sum_" + selectedBook.Title + "_" + selectedBook.Author;
       const cached = localStorage.getItem(cacheKey);
       const summaryBox = document.getElementById("summary-content");
@@ -1482,6 +1635,132 @@
       }
     }
 
+    // --- AI SERIES UPDATE ASSISTANT ---
+    function openSeriesAIAssistant() {
+      if (!currentSeriesContext) return;
+      const seriesName = currentSeriesContext.name;
+      const books = currentSeriesContext.books;
+      const author = books.length > 0 ? books[0].Author : 'Unknown Author';
+
+      pushView("view-series-ai", "Update Series: " + seriesName);
+      document.getElementById("series-ai-header").innerHTML = `
+        <h2 style="font-size:1.15rem; font-weight:700;">${escapeHTML(seriesName)}</h2>
+        <div style="font-size:0.85rem; color:var(--text-muted);">Author: ${escapeHTML(author)} • ${books.length} titles in current library</div>
+      `;
+
+      fetchSeriesAIAnalysis(seriesName, author, books);
+    }
+
+    async function fetchSeriesAIAnalysis(seriesName, author, books) {
+      stopSpeech();
+      const contentBox = document.getElementById("series-ai-content");
+      const saveBox = document.getElementById("series-ai-save-box");
+      const ttsBtn = document.getElementById("btn-tts-series-ai");
+      saveBox.style.display = "none";
+      ttsBtn.style.display = "none";
+      aiProposedNumbers = [];
+
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        contentBox.innerHTML = `<button class="btn btn-secondary" onclick="openKeyModal()">Set Gemini API Key to Analyze Series</button>`;
+        return;
+      }
+
+      contentBox.innerHTML = `<div class="spinner"></div><div style="text-align:center; font-size:0.85rem; color:var(--text-muted);">Analyzing series bibliography and matching sequence numbers...</div>`;
+
+      const existingList = books.map(b => ({
+        title: b.Title,
+        currentSeq: b.Series_Number || null
+      }));
+
+      const prompt = `You are a meticulous book series cataloger.
+Series: "${seriesName}" by ${author}.
+
+Here are the titles currently in the user's library:
+${JSON.stringify(existingList, null, 2)}
+
+TASK:
+1. Identify the official chronological/reading book number for any titles in the user's library that currently have null or missing sequence numbers.
+2. Identify all missing books in this series that the user does NOT have in their library (list book number and title).
+3. Return your response strictly in the following JSON format without Markdown fences or extra text:
+{
+  "updates": [
+    { "title": "Exact Title From User Library", "suggestedSeq": "1" }
+  ],
+  "missingBooks": [
+    { "seq": "2", "title": "Book Title Not in Library" }
+  ],
+  "explanation": "A short summary paragraph explaining what sequence was filled and what books are needed next."
+}`;
+
+      try {
+        const rawRes = await callGeminiAPI(apiKey, prompt);
+        let parsed;
+        try {
+          const cleanJSON = rawRes.replace(/```json/g, '').replace(/```/g, '').trim();
+          parsed = JSON.parse(cleanJSON);
+        } catch (e) {
+          contentBox.innerHTML = `<div style="white-space:pre-wrap;">${escapeHTML(rawRes)}</div>`;
+          return;
+        }
+
+        aiProposedNumbers = parsed.updates || [];
+
+        let html = `<p style="margin-bottom:12px;">${escapeHTML(parsed.explanation || '')}</p>`;
+
+        if (parsed.updates && parsed.updates.length > 0) {
+          html += `<div style="font-weight:700; color:var(--accent-blue); margin-top:14px; margin-bottom:6px;">Sequence Numbers Found for Your Titles:</div><ul style="padding-left:20px; margin-bottom:12px;">`;
+          parsed.updates.forEach(u => {
+            html += `<li><strong>${escapeHTML(u.title)}</strong> &rarr; <span class="badge-book-seq">Book ${escapeHTML(u.suggestedSeq)}</span></li>`;
+          });
+          html += `</ul>`;
+          saveBox.style.display = "block";
+        } else {
+          html += `<div style="color:#22c55e; font-weight:600; margin-top:12px;">✓ All titles in your library already have their correct sequence numbers!</div>`;
+        }
+
+        if (parsed.missingBooks && parsed.missingBooks.length > 0) {
+          html += `<div style="font-weight:700; color:var(--accent-wishlist); margin-top:16px; margin-bottom:6px;">Missing Books to Complete the Series:</div><ul style="padding-left:20px;">`;
+          parsed.missingBooks.forEach(m => {
+            html += `<li>Book ${escapeHTML(m.seq)}: <strong>${escapeHTML(m.title)}</strong></li>`;
+          });
+          html += `</ul>`;
+        }
+
+        contentBox.innerHTML = html;
+        ttsBtn.style.display = "inline-flex";
+      } catch (err) {
+        contentBox.innerHTML = `<span style="color:#ef4444;">Failed to analyze series: ${err.message}</span>`;
+      }
+    }
+
+    async function applyAIFixedNumbers() {
+      if (!aiProposedNumbers || aiProposedNumbers.length === 0) return;
+      showToast("Saving series numbers to Google Sheet...");
+
+      try {
+        for (const update of aiProposedNumbers) {
+          const match = libraryData.find(b => b.Title.toLowerCase() === update.title.toLowerCase());
+          if (match) {
+            match.Series_Number = update.suggestedSeq;
+            await fetch(SCRIPT_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({
+                title: match.Title,
+                seriesNumber: update.suggestedSeq
+              })
+            });
+          }
+        }
+        showToast("Series numbers saved to Google Sheet!");
+        document.getElementById("series-ai-save-box").style.display = "none";
+        renderTitleList();
+      } catch (err) {
+        showToast("Error saving sequence numbers to sheet");
+      }
+    }
+
     async function callGeminiAPI(apiKey, prompt) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
@@ -1499,19 +1778,43 @@
       return data.candidates[0].content.parts[0].text;
     }
 
-    // --- UPDATE VIEW & WRITE-BACK (ACCURATE PLATFORM TARGETING) ---
+    // --- UPDATE VIEW & PLATFORM TOGGLES ---
     function openUpdateScreen() {
       pushView("view-update", "Update " + selectedBook.Title);
       pendingUpdateStatus = selectedBook.Status || "Wishlist";
       pendingUpdateRating = selectedBook.Rating || 0;
+
+      const p = (selectedBook.Platform || "").toLowerCase();
+      pendingPlatforms = {
+        audible: p.includes("audible"),
+        borrowbox: p.includes("borrowbox")
+      };
 
       document.getElementById("update-header").innerHTML = `
         <div style="font-weight:700; font-size:1.1rem; margin-bottom:4px;">${escapeHTML(selectedBook.Title)}</div>
         <div style="font-size:0.85rem; color:var(--text-muted);">${escapeHTML(selectedBook.Author)}</div>
       `;
 
+      renderPlatformToggleButtons();
       renderUpdateRatingStars();
       renderUpdateStatusOptions();
+    }
+
+    function togglePlatformChoice(plat) {
+      if (plat === 'Audible') {
+        pendingPlatforms.audible = !pendingPlatforms.audible;
+      } else if (plat === 'BorrowBox') {
+        pendingPlatforms.borrowbox = !pendingPlatforms.borrowbox;
+      }
+      renderPlatformToggleButtons();
+    }
+
+    function renderPlatformToggleButtons() {
+      const btnAud = document.getElementById("btn-toggle-audible");
+      const btnBor = document.getElementById("btn-toggle-borrowbox");
+
+      btnAud.className = "platform-toggle-btn" + (pendingPlatforms.audible ? " active-audible" : "");
+      btnBor.className = "platform-toggle-btn" + (pendingPlatforms.borrowbox ? " active-borrowbox" : "");
     }
 
     function setUpdateRating(val) {
@@ -1531,9 +1834,6 @@
       const container = document.getElementById("update-status-options");
       container.innerHTML = "";
 
-      const p = (selectedBook.Platform || "").toLowerCase();
-      const isBorrowBox = p.includes("borrowbox");
-
       statuses.forEach(st => {
         let isSelected = false;
         if (st === "Available") isSelected = isAvailable(selectedBook) && !isInProgress(selectedBook);
@@ -1545,9 +1845,13 @@
         opt.className = "status-picker-option" + (isSelected ? " selected" : "");
         opt.onclick = () => {
           if (st === "Available") {
-            pendingUpdateStatus = isBorrowBox ? "Available to Borrow" : "Unread / Owned";
+            pendingUpdateStatus = pendingPlatforms.borrowbox && !pendingPlatforms.audible
+              ? "Available to Borrow"
+              : "Unread / Owned";
           } else if (st === "Listened") {
-            pendingUpdateStatus = isBorrowBox ? "Finished / Loan Ended" : "Finished";
+            pendingUpdateStatus = pendingPlatforms.borrowbox && !pendingPlatforms.audible
+              ? "Finished / Loan Ended"
+              : "Finished";
           } else if (st === "In Progress") {
             pendingUpdateStatus = "In Progress";
           } else if (st === "Wishlist") {
@@ -1557,7 +1861,7 @@
           renderUpdateStatusOptions();
         };
         opt.innerHTML = `
-          <span>${renderStatusIcon({ Status: st === "Available" ? (isBorrowBox ? "Available to Borrow" : "Unread / Owned") : (st === "Listened" ? (isBorrowBox ? "Finished / Loan Ended" : "Finished") : st), Platform: selectedBook.Platform })}</span>
+          <span>${renderStatusIcon({ Status: st === "Available" ? "Unread / Owned" : (st === "Listened" ? "Finished" : st), Platform: selectedBook.Platform })}</span>
           <span style="font-weight:600; font-size:0.9rem;">${st}</span>
         `;
         container.appendChild(opt);
@@ -1568,15 +1872,27 @@
       const book = selectedBook;
       showToast("Saving changes...");
 
+      // Build platform string
+      let platformParts = [];
+      if (pendingPlatforms.audible) platformParts.push("Audible");
+      if (pendingPlatforms.borrowbox) platformParts.push("BorrowBox");
+      let newPlatform = platformParts.join(", ");
+      if (pendingUpdateStatus === "Wishlist") {
+        if (pendingPlatforms.audible && !pendingPlatforms.borrowbox) newPlatform = "Audible Wishlist";
+        else if (pendingPlatforms.borrowbox && !pendingPlatforms.audible) newPlatform = "BorrowBox Wishlist";
+      }
+
       book.Rating = pendingUpdateRating;
       book.Status = pendingUpdateStatus;
+      book.Platform = newPlatform;
       renderTitleList();
 
       try {
         const payload = {
           title: book.Title,
           status: pendingUpdateStatus,
-          rating: pendingUpdateRating
+          rating: pendingUpdateRating,
+          platform: newPlatform
         };
 
         const res = await fetch(SCRIPT_URL, {
@@ -1612,8 +1928,9 @@
 
     function renderPlatformIcon(platform) {
       const p = (platform || '').toLowerCase();
+      let icons = '';
       if (p.includes('audible')) {
-        return `
+        icons += `
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Audible">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -1623,7 +1940,7 @@
         `;
       }
       if (p.includes('borrowbox')) {
-        return `
+        icons += `
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="BorrowBox">
             <path d="m12 3-8 4.5v9L12 21l8-4.5v-9L12 3z"/>
             <path d="M12 12 4 7.5"/>
@@ -1633,7 +1950,7 @@
           </svg>
         `;
       }
-      return '';
+      return icons;
     }
 
     function renderStatusIcon(book) {
@@ -1676,12 +1993,12 @@
     // --- UTILITIES ---
     function escapeHTML(str) {
       if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function escapeQuotes(str) {
       if (!str) return '';
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
     function showToast(msg) {
