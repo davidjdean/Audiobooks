@@ -283,17 +283,6 @@
       gap: 8px;
     }
 
-    .badge-row-num {
-      background-color: rgba(59, 130, 246, 0.15);
-      color: #93c5fd;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 5px;
-      display: inline-block;
-    }
-
     .badge-book-seq {
       background-color: #334155;
       color: #f1f5f9;
@@ -593,7 +582,7 @@
       <div class="btn-icon" onclick="openKeyModal()">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </div>
     </div>
@@ -640,8 +629,7 @@
           </button>
 
           <select class="sort-select" id="sort-select" onchange="renderTitleList()">
-            <option value="none" selected>Sheet Order (No Sort)</option>
-            <option value="title-az">Title (A–Z)</option>
+            <option value="title-az" selected>Title (A–Z)</option>
             <option value="series-seq" id="opt-series-seq" style="display:none;">Series Sequence</option>
             <option value="author-az">Author (A–Z)</option>
             <option value="rating-desc">Rating (High to Low)</option>
@@ -952,7 +940,6 @@
 
         if (!item.Title || !item.Title.trim()) continue;
 
-        item._originalIndex = r; // Spreadsheet Row Index for troubleshooting
         item.Rating = parseInt(item.Rating, 10) || 0;
         item.Series_Number = item.Series_Number || item.Book_Number || "";
         items.push(item);
@@ -1074,8 +1061,8 @@
       document.getElementById("series-header-banner").style.display = "none";
       resetAllSearches();
 
-      // Reset sort to Sheet Order and hide series sequence sort option
-      document.getElementById("sort-select").value = "none";
+      // Reset sort to Title A-Z and hide series sequence sort option
+      document.getElementById("sort-select").value = "title-az";
       document.getElementById("opt-series-seq").style.display = "none";
 
       document.getElementById("btn-back").style.display = "none";
@@ -1116,7 +1103,8 @@
         } else {
           document.getElementById("series-header-banner").style.display = "none";
           document.getElementById("opt-series-seq").style.display = "none";
-          document.getElementById("sort-select").value = "none";
+          // Revert sort to alphabetical whenever stepping back out of a series
+          document.getElementById("sort-select").value = "title-az";
         }
 
         showScreen(prev.screenId);
@@ -1149,6 +1137,7 @@
         currentTitleSubset = null;
         document.getElementById("series-header-banner").style.display = "none";
         document.getElementById("opt-series-seq").style.display = "none";
+        document.getElementById("sort-select").value = "title-az";
         renderTitleList();
       }
       else if (activeMainTab === "authors") renderAuthorList();
@@ -1234,22 +1223,19 @@
         return matches;
       });
 
-      // Sorting logic: if sortBy === 'none', array maintains exact raw spreadsheet row order
-      if (sortBy !== "none") {
-        items.sort((a, b) => {
-          if (sortBy === "title-az") return a.Title.localeCompare(b.Title);
-          if (sortBy === "author-az") return a.Author.localeCompare(b.Author);
-          if (sortBy === "rating-desc") return (b.Rating || 0) - (a.Rating || 0);
-          if (sortBy === "series-seq") {
-            const sComp = (a.Series || "").localeCompare(b.Series || "");
-            if (sComp !== 0) return sComp;
-            const numA = parseFloat(a.Series_Number || 9999);
-            const numB = parseFloat(b.Series_Number || 9999);
-            return numA - numB;
-          }
-          return 0;
-        });
-      }
+      items.sort((a, b) => {
+        if (sortBy === "title-az") return a.Title.localeCompare(b.Title);
+        if (sortBy === "author-az") return a.Author.localeCompare(b.Author);
+        if (sortBy === "rating-desc") return (b.Rating || 0) - (a.Rating || 0);
+        if (sortBy === "series-seq") {
+          const sComp = (a.Series || "").localeCompare(b.Series || "");
+          if (sComp !== 0) return sComp;
+          const numA = parseFloat(a.Series_Number || 9999);
+          const numB = parseFloat(b.Series_Number || 9999);
+          return numA - numB;
+        }
+        return 0;
+      });
 
       container.innerHTML = "";
       if (items.length === 0) {
@@ -1265,7 +1251,7 @@
         const durationStr = book.Duration ? book.Duration : "Unknown duration";
         const hasSeries = book.Series && book.Series.trim() !== "";
 
-        // Sequence badge formatted as #X
+        // Formatted as #X (omits badge completely if unknown)
         let seqBadge = "";
         if (hasSeries && book.Series_Number && String(book.Series_Number).trim() !== "") {
           seqBadge = `<span class="badge-book-seq">#${escapeHTML(book.Series_Number)}</span>`;
@@ -1278,10 +1264,7 @@
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
             <div class="book-card-title">${escapeHTML(book.Title)}</div>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span class="badge-row-num">Row #${book._originalIndex}</span>
-              ${seqBadge}
-            </div>
+            ${seqBadge}
           </div>
           <div class="book-card-meta">
             By <span class="meta-link" onclick="event.stopPropagation(); drillDownAuthor('${escapeQuotes(book.Author)}')">${escapeHTML(book.Author)}</span> • ${seriesDisplay}
@@ -1435,7 +1418,7 @@
         clearTitleSearch();
         document.getElementById("series-header-banner").style.display = "none";
         document.getElementById("opt-series-seq").style.display = "none";
-        document.getElementById("sort-select").value = "none";
+        document.getElementById("sort-select").value = "title-az";
         currentSeriesContext = null;
         pushView("view-titles", `${name} - All Titles`);
         renderTitleList(books, true);
@@ -1480,7 +1463,7 @@
           clearTitleSearch();
           document.getElementById("series-header-banner").style.display = "none";
           document.getElementById("opt-series-seq").style.display = "none";
-          document.getElementById("sort-select").value = "none";
+          document.getElementById("sort-select").value = "title-az";
           currentSeriesContext = null;
           pushView("view-titles", "Standalone Titles");
           renderTitleList(standalones, true);
